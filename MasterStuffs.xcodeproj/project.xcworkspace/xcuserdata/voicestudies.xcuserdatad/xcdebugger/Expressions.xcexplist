@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<VariablesViewState
+   version = "1.0">
+   <ContextStates>
+      <ContextState
+         contextName = "mpApp::touchDown(ofTouchEventArgs&amp;):mpApp.mm">
+      </ContextState>
+      <ContextState
+         contextName = "mpApp::audioOut(float*, int, int):mpApp.mm">
+      </ContextState>
+      <ContextState
+         contextName = "mpCanvas::draw():mpCanvas.mm">
+         <PersistentStrings>
+            <PersistentString
+               value = "height">
+            </PersistentString>
+            <PersistentString
+               value = "x_pos">
+            </PersistentString>
+            <PersistentString
+               value = "width">
+            </PersistentString>
+            <PersistentString
+               value = "backgroundImage">
+            </PersistentString>
+            <PersistentString
+               value = "y_pos">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "mpSlider::setInitialValue(float):mpSlider.h">
+         <PersistentStrings>
+            <PersistentString
+               value = "maxValue">
+            </PersistentString>
+            <PersistentString
+               value = "y">
+            </PersistentString>
+            <PersistentString
+               value = "yi + H - imageH">
+            </PersistentString>
+            <PersistentString
+               value = "minValue">
+            </PersistentString>
+            <PersistentString
+               value = "yi">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "mpSlider::init(std::string, std::string, float, float, float, float):mpSlider.mm">
+         <PersistentStrings>
+            <PersistentString
+               value = "xi">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "mpNoiseGate::processBuffer(float*, int, float, float):mpNoiseGate.cpp">
+         <PersistentStrings>
+            <PersistentString
+               value = "_buffer[i]">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "mpSlider::init(std::string, std::string, std::string, float, float, float, float):mpSlider.h">
+         <PersistentStrings>
+            <PersistentString
+               value = "urlImageDown">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "mpCanvas::init(float, float, float, float):mpCanvas.mm">
+         <PersistentStrings>
+            <PersistentString
+               value = "backgroundImage">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "mpNoiseGate::processSample(float, float, long, float, float):mpNoiseGate.cpp">
+      </ContextState>
+      <ContextState
+         contextName = "mpSlider::onPress(int, int, int):mpSlider.h">
+         <PersistentStrings>
+            <PersistentString
+               value = "offsety">
+            </PersistentString>
+            <PersistentString
+               value = "yi">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "mpButton::init(std::string, std::string, std::string, float, float, float, float):mpButton.h">
+         <PersistentStrings>
+            <PersistentString
+               value = "urlImageState0">
+            </PersistentString>
+            <PersistentString
+               value = "btnImageState0">
+            </PersistentString>
+            <PersistentString
+               value = "urlImageState1">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+   </ContextStates>
+</VariablesViewState>

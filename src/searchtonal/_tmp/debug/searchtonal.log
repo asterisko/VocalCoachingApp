@@ -1,0 +1,28 @@
+﻿Build started 18/04/2013 03:19:58.
+     1>Project "D:\voicestudies\svn_static\_libsource\searchtonal\searchtonal.vcxproj" on node 2 (build target(s)).
+     1>InitializeBuildStatus:
+         Creating "_tmp\debug\searchtonal.unsuccessfulbuild" because "AlwaysCreate" was specified.
+       ClCompile:
+         C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\CL.exe /c /Ic:\qt\4.8.2\include\QtCore /Ic:\qt\4.8.2\include\QtGui /Ic:\qt\4.8.2\include /Isrc /I..\..\_include /Ic:\qt\4.8.2\include /I..\..\_include\audioops /Ic:\qt\4.8.2\include\ActiveQt /I_tmp\debug /I"c:\qt\4.8.2\mkspecs\win32-msvc2010" /Zi /nologo /W3 /WX- /Od /Oy- /D _CONSOLE /D UNICODE /D WIN32 /D QT_LARGEFILE_SUPPORT /D _DEBUG /D VISUAL_STUDIO_PRO_ /D embed_manifest_exe /D _CRT_SECURE_NO_WARNINGS /D QT_GUI_LIB /D QT_CORE_LIB /D QT_HAVE_MMX /D QT_HAVE_3DNOW /D QT_HAVE_SSE /D QT_HAVE_MMXEXT /D QT_HAVE_SSE2 /D QT_THREAD_SUPPORT /Gm- /EHsc /MDd /GS- /fp:precise /Zc:wchar_t- /Zc:forScope /GR /Fo"_tmp\debug\\" /Fd".\vc100.pdb" /Gd /TP /analyze- /errorReport:prompt src\PitchMeter.cpp -Zm200 -w34100 -w34189 
+         PitchMeter.cpp
+     1>src\PitchMeter.cpp(43): warning C4244: '=' : conversion from 'float' to 'int', possible loss of data
+     1>src\PitchMeter.cpp(282): warning C4244: 'initializing' : conversion from 'float' to 'int', possible loss of data
+     1>src\PitchMeter.cpp(284): warning C4244: 'argument' : conversion from 'int' to 'float', possible loss of data
+     1>src\PitchMeter.cpp(539): warning C4189: 'magnitude' : local variable is initialized but not referenced
+     1>src\PitchMeter.cpp(700): warning C4189: 'bufferIN' : local variable is initialized but not referenced
+     1>src\PitchMeter.cpp(785): warning C4101: 'testeErro' : unreferenced local variable
+       Lib:
+         C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\Lib.exe /OUT:"_out\debug\searchtonal.lib" /NOLOGO _tmp\debug\PitchMeter.obj
+         _tmp\debug\segment.obj
+         _tmp\debug\statseg.obj
+         _tmp\debug\transform.obj
+         _tmp\debug\window.obj
+         searchtonal.vcxproj -> D:\voicestudies\svn_static\_libsource\searchtonal\_out\debug\searchtonal.lib
+       FinalizeBuildStatus:
+         Deleting file "_tmp\debug\searchtonal.unsuccessfulbuild".
+         Touching "_tmp\debug\searchtonal.lastbuildstate".
+     1>Done Building Project "D:\voicestudies\svn_static\_libsource\searchtonal\searchtonal.vcxproj" (build target(s)).
+
+Build succeeded.
+
+Time Elapsed 00:00:00.40

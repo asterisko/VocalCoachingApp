@@ -1,0 +1,589 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+		D7BA7D76DAB5DD13389D6332 = {
+			buildActionMask = 2147483647;
+			files = (
+				);
+			generatedFileNames = (
+				);
+			isa = PBXShellScriptBuildPhase;
+			name = "Qt Qmake";
+			neededFileNames = (
+				);
+			shellPath = "/bin/sh";
+			shellScript = "make -C /Users/slopes/Documents/myWork/FEUP/Libs_SS_from_JL18042013/_libsource/searchtonal -f searchtonal.xcodeproj/qt_makeqmake.mak";
+		};
+		8674926FF72971697B3EC775 = {
+			isa = PBXFileReference;
+			name = "PitchMeter.cpp";
+			path = "src/PitchMeter.cpp";
+			refType = 4;
+			sourceTree = "SOURCE_ROOT";
+			lastKnownFileType = "sourcecode.cpp.cpp";
+		};
+		421DA2AE5385E4B5CE97D113 = {
+			fileRef = "8674926FF72971697B3EC775";
+			isa = PBXBuildFile;
+			settings = {
+				ATTRIBUTES = (
+					);
+			};
+		};
+		372C4ED3F4A8D87A3DDBB76A = {
+			isa = PBXFileReference;
+			name = "segment.cpp";
+			path = "src/segment.cpp";
+			refType = 4;
+			sourceTree = "SOURCE_ROOT";
+			lastKnownFileType = "sourcecode.cpp.cpp";
+		};
+		C573D4E5FEB3AA83CD9A4FDE = {
+			fileRef = "372C4ED3F4A8D87A3DDBB76A";
+			isa = PBXBuildFile;
+			settings = {
+				ATTRIBUTES = (
+					);
+			};
+		};
+		0F44C6941E3E532A869BAF67 = {
+			isa = PBXFileReference;
+			name = "statseg.cpp";
+			path = "src/statseg.cpp";
+			refType = 4;
+			sourceTree = "SOURCE_ROOT";
+			lastKnownFileType = "sourcecode.cpp.cpp";
+		};
+		4FCF93FD1A4AA69EF7C22242 = {
+			fileRef = "0F44C6941E3E532A869BAF67";
+			isa = PBXBuildFile;
+			settings = {
+				ATTRIBUTES = (
+					);
+			};
+		};
+		D3C84476541893B54E323D4E = {
+			isa = PBXFileReference;
+			name = "tmpFile.cpp";
+			path = "src/tmpFile.cpp";
+			refType = 4;
+			sourceTree = "SOURCE_ROOT";
+			lastKnownFileType = "sourcecode.cpp.cpp";
+		};
+		AF3B3813DBCE734AABAC5F79 = {
+			fileRef = "D3C84476541893B54E323D4E";
+			isa = PBXBuildFile;
+			settings = {
+				ATTRIBUTES = (
+					);
+			};
+		};
+		7F2A41A38AEA2883EEBF7588 = {
+			isa = PBXFileReference;
+			name = "transform.cpp";
+			path = "src/transform.cpp";
+			refType = 4;
+			sourceTree = "SOURCE_ROOT";
+			lastKnownFileType = "sourcecode.cpp.cpp";
+		};
+		9820ED626C2CEF2741CBEFDA = {
+			fileRef = "7F2A41A38AEA2883EEBF7588";
+			isa = PBXBuildFile;
+			settings = {
+				ATTRIBUTES = (
+					);
+			};
+		};
+		AEF9E958D9E5F476279C706E = {
+			isa = PBXFileReference;
+			name = "window.cpp";
+			path = "src/window.cpp";
+			refType = 4;
+			sourceTree = "SOURCE_ROOT";
+			lastKnownFileType = "sourcecode.cpp.cpp";
+		};
+		312FA3FC253AFAD4F4DE5522 = {
+			fileRef = "AEF9E958D9E5F476279C706E";
+			isa = PBXBuildFile;
+			settings = {
+				ATTRIBUTES = (
+					);
+			};
+		};
+		06B1446C4B9F9F1CF62986E0 = {
+			isa = PBXFileReference;
+			name = "common.h";
+			path = "src/common.h";
+			refType = 4;
+			sourceTree = "SOURCE_ROOT";
+		};
+		3532AB7C869E3177C1E1BB91 = {
+			isa = PBXFileReference;
+			name = "complex.h";
+			path = "src/complex.h";
+			refType = 4;
+			sourceTree = "SOURCE_ROOT";
+		};
+		2615C67459DBCB8C6948BB1A = {
+			isa = PBXFileReference;
+			name = "Defines.h";
+			path = "src/Defines.h";
+			refType = 4;
+			sourceTree = "SOURCE_ROOT";
+		};
+		D278FC7D6997679F1F7416C5 = {
+			isa = PBXFileReference;
+			name = "logging.h";
+			path = "src/logging.h";
+			refType = 4;
+			sourceTree = "SOURCE_ROOT";
+		};
+		3716DDA1E2ADD040BF79F059 = {
+			isa = PBXFileReference;
+			name = "PitchMeter.h";
+			path = "src/PitchMeter.h";
+			refType = 4;
+			sourceTree = "SOURCE_ROOT";
+		};
+		AAC5A40C07E7C0AF08742BAF = {
+			isa = PBXFileReference;
+			name = "segment.h";
+			path = "src/segment.h";
+			refType = 4;
+			sourceTree = "SOURCE_ROOT";
+		};
+		79EC8F60C832574F2A783048 = {
+			isa = PBXFileReference;
+			name = "statseg.h";
+			path = "src/statseg.h";
+			refType = 4;
+			sourceTree = "SOURCE_ROOT";
+		};
+		E2AD7E3B062E2D18AD0CACC1 = {
+			isa = PBXFileReference;
+			name = "tmpFile.h";
+			path = "src/tmpFile.h";
+			refType = 4;
+			sourceTree = "SOURCE_ROOT";
+		};
+		E96DFB7A92F3D258919F90C1 = {
+			isa = PBXFileReference;
+			name = "transform.h";
+			path = "src/transform.h";
+			refType = 4;
+			sourceTree = "SOURCE_ROOT";
+		};
+		9B1B27983DFBD7125A23A9B6 = {
+			isa = PBXFileReference;
+			name = "window.h";
+			path = "src/window.h";
+			refType = 4;
+			sourceTree = "SOURCE_ROOT";
+		};
+		C7106B54DD52CF157A4AFCB0 = {
+			isa = PBXFileReference;
+			name = "project.pro";
+			path = "project.pro";
+			refType = 4;
+			sourceTree = "SOURCE_ROOT";
+		};
+		883D7615C4D2DE3FA1218F12 = {
+			isa = PBXGroup;
+			children = (
+				"F4AF6147B42623F6B3284738");
+			name = "Headers";
+			refType = 4;
+			sourceTree = "<Group>";
+		};
+		F4AF6147B42623F6B3284738 = {
+			isa = PBXGroup;
+			children = (
+				"06B1446C4B9F9F1CF62986E0",
+				"3532AB7C869E3177C1E1BB91",
+				"2615C67459DBCB8C6948BB1A",
+				"D278FC7D6997679F1F7416C5",
+				"3716DDA1E2ADD040BF79F059",
+				"AAC5A40C07E7C0AF08742BAF",
+				"79EC8F60C832574F2A783048",
+				"E2AD7E3B062E2D18AD0CACC1",
+				"E96DFB7A92F3D258919F90C1",
+				"9B1B27983DFBD7125A23A9B6");
+			name = "src";
+			refType = 4;
+			sourceTree = "<Group>";
+		};
+		06674E1DE8D3EB6E763DFFDA = {
+			isa = PBXGroup;
+			children = (
+				"8674926FF72971697B3EC775",
+				"372C4ED3F4A8D87A3DDBB76A",
+				"0F44C6941E3E532A869BAF67",
+				"D3C84476541893B54E323D4E",
+				"7F2A41A38AEA2883EEBF7588",
+				"AEF9E958D9E5F476279C706E");
+			name = "src";
+			refType = 4;
+			sourceTree = "<Group>";
+		};
+		FB61758D0F0FDA4BA867C3D5 = {
+			isa = PBXGroup;
+			children = (
+				"06674E1DE8D3EB6E763DFFDA");
+			name = "Sources";
+			refType = 4;
+			sourceTree = "<Group>";
+		};
+		DD3C674B0E9509B84DF40A16 = {
+			isa = PBXGroup;
+			children = (
+				"F4AF6147B42623F6B3284738");
+			name = "Sources [MOC]";
+			refType = 4;
+			sourceTree = "<Group>";
+		};
+		7CABE3C80E79AD2B307756D2 = {
+			isa = PBXGroup;
+			children = (
+				"C7106B54DD52CF157A4AFCB0");
+			name = "Sources [qmake]";
+			refType = 4;
+			sourceTree = "<Group>";
+		};
+		A0A52A2ADF7A1E2A99738674 = {
+			buildActionMask = 2147483647;
+			files = (
+				);
+			generatedFileNames = (
+				"421DA2AE5385E4B5CE97D113",
+				"C573D4E5FEB3AA83CD9A4FDE",
+				"4FCF93FD1A4AA69EF7C22242",
+				"AF3B3813DBCE734AABAC5F79",
+				"9820ED626C2CEF2741CBEFDA",
+				"312FA3FC253AFAD4F4DE5522");
+			isa = PBXShellScriptBuildPhase;
+			name = "Qt Preprocessors";
+			neededFileNames = (
+				"421DA2AE5385E4B5CE97D113",
+				"C573D4E5FEB3AA83CD9A4FDE",
+				"4FCF93FD1A4AA69EF7C22242",
+				"AF3B3813DBCE734AABAC5F79",
+				"9820ED626C2CEF2741CBEFDA",
+				"312FA3FC253AFAD4F4DE5522");
+			shellPath = "/bin/sh";
+			shellScript = "make -C /Users/slopes/Documents/myWork/FEUP/Libs_SS_from_JL18042013/_libsource/searchtonal -f searchtonal.xcodeproj/qt_preprocess.mak";
+		};
+		C29B8785722055ED95EF7B57 = {
+			buildActionMask = 2147483647;
+			files = (
+				"421DA2AE5385E4B5CE97D113",
+				"C573D4E5FEB3AA83CD9A4FDE",
+				"4FCF93FD1A4AA69EF7C22242",
+				"AF3B3813DBCE734AABAC5F79",
+				"9820ED626C2CEF2741CBEFDA",
+				"312FA3FC253AFAD4F4DE5522");
+			isa = PBXSourcesBuildPhase;
+			name = "Build Sources";
+		};
+		2A1043669E6E5A7426EA502A = {
+			buildActionMask = 2147483647;
+			files = (
+				);
+			isa = PBXFrameworksBuildPhase;
+			name = "Frameworks & Libraries";
+		};
+		F6069D5A5DA8AA28EDB8B3C6 = {
+			isa = PBXShellScriptBuildPhase;
+			name = "Project Copy";
+			buildActionMask = 2147483647;
+			files = (
+				);
+			inputPaths = (
+				);
+			outputPaths = (
+				);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = "/bin/sh";
+			shellScript = "cp\ -r\ $BUILT_PRODUCTS_DIR/$FULL_PRODUCT_NAME\ /Users/slopes/Documents/myWork/FEUP/Libs_SS_from_JL18042013/_libsource/searchtonal/_out/release";
+		};
+		05596AB53D8D521C69802C27 = {
+			children = (
+				"FB61758D0F0FDA4BA867C3D5",
+				"883D7615C4D2DE3FA1218F12",
+				"7CABE3C80E79AD2B307756D2",
+				"DD3C674B0E9509B84DF40A16");
+			isa = PBXGroup;
+			name = "searchtonal";
+			path = "";
+			refType = 4;
+			sourceTree = "<Group>";
+		};
+		F2CF2B414CDC1ABDFC28B625 = {
+			isa = PBXFileReference;
+			explicitFileType = "compiled.mach-o.dylib";
+			path = "libsearchtonal.a";
+			refType = 3;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		068F80C7519D0528FB08E821 = {
+			children = (
+				"F2CF2B414CDC1ABDFC28B625");
+			isa = PBXGroup;
+			name = "Products";
+			refType = 4;
+			sourceTree = "<Group>";
+		};
+		C8A9DE38908CABAAC0DC93A4 = {
+			buildPhases = (
+				"D7BA7D76DAB5DD13389D6332",
+				"A0A52A2ADF7A1E2A99738674",
+				"C29B8785722055ED95EF7B57",
+				"2A1043669E6E5A7426EA502A",
+				"F6069D5A5DA8AA28EDB8B3C6");
+			buildSettings = {
+				CC = "/usr/bin/gcc";
+				CPLUSPLUS = "/usr/bin/g++";
+				LEXFLAGS = "";
+				YACCFLAGS = "-d";
+				OTHER_REZFLAGS = "";
+				SECTORDER_FLAGS = "";
+				WARNING_CFLAGS = "";
+				PREBINDING = NO;
+				BUILD_ROOT = "/Users/slopes/Documents/myWork/FEUP/Libs_SS_from_JL18042013/_libsource/searchtonal";
+				INSTALL_DIR = "/Users/slopes/Documents/myWork/FEUP/Libs_SS_from_JL18042013/_libsource/searchtonal/_out/release/";
+				INSTALL_PATH = "";
+				DYLIB_CURRENT_VERSION = "1.0.0";
+				DYLIB_COMPATIBILITY_VERSION = "1.0";
+				LIBRARY_STYLE = "STATIC";
+				PRODUCT_NAME = "searchtonal";
+			};
+			conditionalBuildSettings = {
+			};
+			dependencies = (
+				);
+			productReference = "F2CF2B414CDC1ABDFC28B625";
+			shouldUseHeadermap = 1;
+			buildConfigurationList = 17B3380A4D6A7D415E7F2E1E;
+			isa = PBXNativeTarget;
+			name = "searchtonal";
+			productName = "searchtonal";
+			productType = "com.apple.product-type.library.static";
+			startupPath = "<<ProjectDirectory>>";
+			productInstallPath = "_out/release/";
+		};
+		4B72B24813252891014BCF61 = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = "NO";
+				GCC_GENERATE_DEBUGGING_SYMBOLS = "YES";
+				GCC_OPTIMIZATION_LEVEL = "0";
+				PRODUCT_NAME = "searchtonal";
+				HEADER_SEARCH_PATHS = (
+					"src",
+					"/_include",
+					"/include",
+					"/_include/audioops",
+					"../../../../../Qt/Qt5.0.1/5.0.1/clang_64/include",
+					"../../../../../Qt/Qt5.0.1/5.0.1/clang_64/include/QtGui",
+					"../../../../../Qt/Qt5.0.1/5.0.1/clang_64/lib/QtGui.framework/Versions/5/Headers",
+					"../../../../../Qt/Qt5.0.1/5.0.1/clang_64/include/QtCore",
+					"../../../../../Qt/Qt5.0.1/5.0.1/clang_64/lib/QtCore.framework/Versions/5/Headers",
+					"_tmp/release",
+					"/System/Library/Frameworks/OpenGL.framework/Versions/A/Headers",
+					"/System/Library/Frameworks/AGL.framework/Headers",
+					"/usr/local/include",
+					"/System/Library/Frameworks/CarbonCore.framework/Headers",
+					"../../../../../Qt/Qt5.0.1/5.0.1/clang_64/mkspecs/macx-xcode");
+				LIBRARY_SEARCH_PATHS = (
+					);
+				FRAMEWORK_SEARCH_PATHS = (
+					);
+				INFOPLIST_FILE = "Info.plist";
+				OTHER_CFLAGS = (
+					"-pipe",
+					"-mmacosx-version-min=10.6",
+					"-O2",
+					"-fPIC",
+					"-Wall",
+					"-W",
+					"-DNDEBUG",
+					"-DQT_NO_DEBUG",
+					"-DQT_GUI_LIB",
+					"-DQT_CORE_LIB");
+				OTHER_CPLUSPLUSFLAGS = (
+					"-pipe",
+					"-mmacosx-version-min=10.6",
+					"-O2",
+					"-GL",
+					"-fPIC",
+					"-Wall",
+					"-W",
+					"-DNDEBUG",
+					"-DQT_NO_DEBUG",
+					"-DQT_GUI_LIB",
+					"-DQT_CORE_LIB");
+				ARCHS = "x86_64";
+				OBJROOT = "_tmp/release/";
+			};
+			name = "Debug";
+		};
+		2C641C3335766025DD51B7BD = {
+			buildRules = (
+				);
+			buildSettings = {
+				COPY_PHASE_STRIP = "NO";
+				GCC_GENERATE_DEBUGGING_SYMBOLS = "YES";
+				GCC_OPTIMIZATION_LEVEL = "0";
+				PRODUCT_NAME = "searchtonal";
+			};
+			isa = "PBXBuildStyle";
+			name = "Debug";
+		};
+		BEC09A62E69C3553534FF35E = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = "NO";
+				GCC_GENERATE_DEBUGGING_SYMBOLS = "YES";
+				GCC_OPTIMIZATION_LEVEL = "0";
+				PRODUCT_NAME = "searchtonal";
+				LIBRARY_STYLE = "STATIC";
+				PRODUCT_NAME = "searchtonal";
+			};
+			name = "Debug";
+		};
+		2C641C3335766025DD51B7BD = {
+			buildRules = (
+				);
+			buildSettings = {
+				COPY_PHASE_STRIP = "NO";
+				GCC_GENERATE_DEBUGGING_SYMBOLS = "YES";
+				GCC_OPTIMIZATION_LEVEL = "0";
+				PRODUCT_NAME = "searchtonal";
+			};
+			isa = "PBXBuildStyle";
+			name = "Debug";
+		};
+		D70590BEB531B51029F711BB = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = "YES";
+				GCC_GENERATE_DEBUGGING_SYMBOLS = "NO";
+				PRODUCT_NAME = "searchtonal";
+				HEADER_SEARCH_PATHS = (
+					"src",
+					"/_include",
+					"/include",
+					"/_include/audioops",
+					"../../../../../Qt/Qt5.0.1/5.0.1/clang_64/include",
+					"../../../../../Qt/Qt5.0.1/5.0.1/clang_64/include/QtGui",
+					"../../../../../Qt/Qt5.0.1/5.0.1/clang_64/lib/QtGui.framework/Versions/5/Headers",
+					"../../../../../Qt/Qt5.0.1/5.0.1/clang_64/include/QtCore",
+					"../../../../../Qt/Qt5.0.1/5.0.1/clang_64/lib/QtCore.framework/Versions/5/Headers",
+					"_tmp/release",
+					"/System/Library/Frameworks/OpenGL.framework/Versions/A/Headers",
+					"/System/Library/Frameworks/AGL.framework/Headers",
+					"/usr/local/include",
+					"/System/Library/Frameworks/CarbonCore.framework/Headers",
+					"../../../../../Qt/Qt5.0.1/5.0.1/clang_64/mkspecs/macx-xcode");
+				LIBRARY_SEARCH_PATHS = (
+					);
+				FRAMEWORK_SEARCH_PATHS = (
+					);
+				INFOPLIST_FILE = "Info.plist";
+				OTHER_CFLAGS = (
+					"-pipe",
+					"-mmacosx-version-min=10.6",
+					"-O2",
+					"-fPIC",
+					"-Wall",
+					"-W",
+					"-DNDEBUG",
+					"-DQT_NO_DEBUG",
+					"-DQT_GUI_LIB",
+					"-DQT_CORE_LIB");
+				OTHER_CPLUSPLUSFLAGS = (
+					"-pipe",
+					"-mmacosx-version-min=10.6",
+					"-O2",
+					"-GL",
+					"-fPIC",
+					"-Wall",
+					"-W",
+					"-DNDEBUG",
+					"-DQT_NO_DEBUG",
+					"-DQT_GUI_LIB",
+					"-DQT_CORE_LIB");
+				ARCHS = "x86_64";
+				OBJROOT = "_tmp/release/";
+			};
+			name = "Release";
+		};
+		26DE8D2AEA4B3714B41E931F = {
+			buildRules = (
+				);
+			buildSettings = {
+				COPY_PHASE_STRIP = "YES";
+				GCC_GENERATE_DEBUGGING_SYMBOLS = "NO";
+				PRODUCT_NAME = "searchtonal";
+			};
+			isa = "PBXBuildStyle";
+			name = "Release";
+		};
+		8C7174830A1E4DCBA0332EC1 = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = "YES";
+				GCC_GENERATE_DEBUGGING_SYMBOLS = "NO";
+				PRODUCT_NAME = "searchtonal";
+				LIBRARY_STYLE = "STATIC";
+				PRODUCT_NAME = "searchtonal";
+			};
+			name = "Release";
+		};
+		26DE8D2AEA4B3714B41E931F = {
+			buildRules = (
+				);
+			buildSettings = {
+				COPY_PHASE_STRIP = "YES";
+				GCC_GENERATE_DEBUGGING_SYMBOLS = "NO";
+				PRODUCT_NAME = "searchtonal";
+			};
+			isa = "PBXBuildStyle";
+			name = "Release";
+		};
+		CC82A9286117DFED018F418F = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				"4B72B24813252891014BCF61",
+				"D70590BEB531B51029F711BB");
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationIsName = "Release";
+		};
+		17B3380A4D6A7D415E7F2E1E = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				"BEC09A62E69C3553534FF35E",
+				"8C7174830A1E4DCBA0332EC1");
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationIsName = "Release";
+		};
+		91B15E841AA80083484172DE = {
+			buildStyles = (
+				"2C641C3335766025DD51B7BD",
+				"2C641C3335766025DD51B7BD",
+				"26DE8D2AEA4B3714B41E931F",
+				"26DE8D2AEA4B3714B41E931F");
+			hasScannedForEncodings = 1;
+			isa = PBXProject;
+			mainGroup = "05596AB53D8D521C69802C27";
+			buildConfigurationList = "CC82A9286117DFED018F418F";
+			projectDirPath = "";
+			targets = (
+				"C8A9DE38908CABAAC0DC93A4");
+		};
+	};
+	rootObject = "91B15E841AA80083484172DE";
+}

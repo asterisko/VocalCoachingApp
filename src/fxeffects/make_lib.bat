@@ -1,0 +1,1 @@
+@call %SVN_STATIC%\_include\commonBatch\make_lib %1 project.pro rtaudiomidi RtAudio.h RtError.h RtMidi.h

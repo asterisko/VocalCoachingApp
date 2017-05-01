@@ -1,0 +1,950 @@
+#ifndef _STATSEG_
+#define _STATSEG_
+
+#include <iostream>
+using namespace std;
+
+#include "statseg.h"
+#include "window.h"
+#include "transform.h"
+
+typedef void (TRANSFORM::*TRF)(double*, double*, TRFTYPE);
+
+STATSEG::STATSEG(int length) : SEGMENT(length) // constroi base
+{
+     int i,j;
+
+     nshort=1;
+     daddsamp = new double[nwords];
+     coeftf   = new complex[nwords];
+     recoeftf   = new double[nwords2];
+     imcoeftf   = new double[nwords2];
+     lcoef    = new complex[nwords2];
+     scoef    = new complex[nwords2];
+     overlap  = new double[nwords2];
+     tntyhz   = new double[nwords2];
+     unqzcoef = new double[nwords2];
+/* ajf 24.08.00 */
+     magni   = new double[nwords2];
+     phase   = new double[nwords2];
+     cepstrum   = new double[nwords2];
+     flatcoef    = new complex[nwords2];
+     syntcoef    = new complex[nwords2];
+     rlcoef    = new double[nwords2];
+     rscoef    = new double[nwords2];
+     tmpdbl    = new double[nwords2];
+/* ajf 24.08.01 */
+     logmag    = new double[nwords2];
+     energy    = new double[nwords2];
+/* ajf 19jul05 */
+     asrbwe    = new complex[nwords2]; // actual bandwidth extended signal
+     asrphi    = new double[nwords4]; // N/4 partials at most
+     asrmag    = new double[nwords4]; // N/4 partials at most
+     asroldphi = new double[nwords4]; // N/4 partials at most
+     asroldmag = new double[nwords4]; // N/4 partials at most
+     asrliv    = new int[nwords4]; // N/4 partials at most
+     for (i=0; i<nwords4; i++) asrliv[i]=-1;
+/* ajf 30dec06 */
+     for (i=0; i<8; i++) pastf0[i]=0.0;
+     tonalsinfo.ntonal=0;
+     for (i=0; i<8; i++)
+     {
+         tonalsinfo.f0tonal[i]=0.0;
+         tonalsinfo.phitonal[i]=0.0;
+         tonalsinfo.magtonal[i]=1.0E-4;
+     }
+     nharmonicstructures=0;
+     for (i=0; i<8; i++)
+     {
+         harmonicstructure[i].nharmonic=0;
+         harmonicstructure[i].npause=0;
+         harmonicstructure[i].pospause=0;
+         harmonicstructure[i].f0harmonic=0.0;
+         harmonicstructure[i].accpower=1.0E-4;
+         for (j=0; j<128; j++)
+         {
+             harmonicstructure[i].phiharmonic[j]=0.0;
+             harmonicstructure[i].magharmonic[j]=1.0E-4;
+         }
+     }
+	//JM 25Mai07
+	myPower = new double[nwords2];
+	myCepstrumEst = new double[8];
+	myCepstrumMag = new double[8];
+	//
+}
+
+STATSEG::STATSEG() : SEGMENT() // constroi base
+{
+     nshort=1;
+     daddsamp  = 0;
+     coeftf = 0;
+     lcoef = scoef = 0;
+     overlap =0;
+     tntyhz =0;
+     unqzcoef =0;
+/* ajf 24.08.00 */
+     magni =0;
+     phase =0;
+     cepstrum =0;
+     flatcoef =0;
+     syntcoef =0;
+     rlcoef = rscoef = tmpdbl = 0;
+/* ajf 24.08.01 */
+     logmag =0;
+     energy =0;
+/* ajf 19jul05 */
+     asrbwe    = 0;
+     asrphi    = 0;
+     asrmag    = 0;
+     asroldphi = 0;
+     asroldmag = 0;
+     asrliv    = 0;
+
+//JM 25Mai07
+	myPower = 0;
+	myCepstrumEst = 0;
+	myCepstrumMag = 0;
+}
+
+STATSEG::~STATSEG()
+{
+     delete[] daddsamp; delete[] coeftf; delete[] tntyhz; delete[] unqzcoef;
+     delete[] lcoef; delete[] scoef; delete[] overlap; delete[] recoeftf;
+     delete[] imcoeftf;
+/* ajf 24.08.00 */
+     delete[] magni; delete[] phase; delete[] cepstrum; delete[] flatcoef;
+     delete[] rlcoef; delete[] rscoef; delete[] tmpdbl; delete[] syntcoef;
+/* ajf 24.08.01 */
+     delete[] logmag;
+     delete[] energy;
+/* ajf 19jul05 */
+     delete[] asrbwe; delete[] asrphi; delete[] asrmag; delete[] asroldphi; delete[] asroldmag; delete[] asrliv;
+//JM
+	 delete[] myPower; delete[] myCepstrumEst; delete[] myCepstrumMag; 
+}
+/*
+void STATSEG::getdouble()
+{
+     int i;
+     switch(wordlength)
+     {
+	  case  8 : for (i=0; i<nwords; i++)
+		    *(daddsamp+i) = (double) (*(addsamp08+i)); break;
+	  case 16 : for (i=0; i<nwords; i++)
+		    *(daddsamp+i) = (double) (*(addsamp16+i)); break;
+	  case 24 : for (i=0; i<nwords; i++)
+		    *(daddsamp+i) = (double) (*(addsamp24+i)); break;
+     }
+
+}
+*/
+void STATSEG::getdouble(double* input)
+{
+     int i;
+     switch(wordlength)
+     {
+	  case  8 : for (i=0; i<nwords; i++)
+		    *(daddsamp+i) =  *(input+i); break;
+	  case 16 : for (i=0; i<nwords; i++)
+		    *(daddsamp+i) = *(input+i); break;
+	  case 24 : for (i=0; i<nwords; i++)
+		    *(daddsamp+i) = *(input+i); break;
+     }
+
+}
+
+void STATSEG::putinteger()
+{
+     int i;
+     switch(wordlength)
+     {
+	  case  8 : for (i=0; i<nwords; i++)
+		    *(addsamp08+i) = castchar  (*(daddsamp+i)); break;
+	  case 16 : for (i=0; i<nwords; i++)
+		    *(addsamp16+i) = castshort (*(daddsamp+i)); break;
+	  case 24 : for (i=0; i<nwords; i++)
+		    *(addsamp24+i) = castint   (*(daddsamp+i)); break;
+     }
+}
+
+void STATSEG::getcomplex()
+{
+     for (int i=0; i<nwords; i++) *(coeftf+i) = complex(*(daddsamp+i), 0.0);
+     
+}
+
+void STATSEG::loaddoubledir(int volume)
+{
+     for (int i=0; i<volume; i++)
+     {
+        *(recoeftf+i) = real(*(coeftf+2*i));
+        *(imcoeftf+i) = real(*(coeftf+1+2*i));
+     }
+}
+
+void STATSEG::storedoubledir(int volume)
+{
+     for (int i=0; i<volume; i++)
+     {
+        *(coeftf+i) = complex(*(recoeftf+i), *(imcoeftf+i));
+     }
+}
+
+void STATSEG::loaddoubleinv(int volume)
+{
+     for (int i=0; i<volume; i++)
+     {
+        *(recoeftf+i) = real(*(coeftf+i));
+        *(imcoeftf+i) = imag(*(coeftf+i));
+     }
+}
+
+void STATSEG::storedoubleinv(int volume)
+{
+     for (int i=0; i<volume; i++)
+     {
+        *(coeftf+2*i) = complex ( *(recoeftf+i), 0.0);
+        *(coeftf+2*i+1) = complex ( *(imcoeftf+i), 0.0);
+     }
+}
+
+void STATSEG::putdouble()
+{
+     for (int i=0; i<nwords; i++) *(daddsamp+i) = real(*(coeftf+i));
+}
+
+STATSEG& STATSEG::operator=(const STATSEG& st)
+{
+     int i;
+     if (nwords==0)
+     {
+	  this->SEGMENT::operator=(st); // ver pag. 576 Bjarne
+	  daddsamp = new double[nwords];
+	  coeftf   = new complex[nwords];
+          lcoef    = new complex[nwords2];
+          scoef    = new complex[nwords2];
+          overlap  = new double[nwords2];
+
+	  for (i=0; i<nwords; i++)
+	  {
+	       *(daddsamp+i) = *(st.daddsamp+i);
+	       *(coeftf+i) = *(st.coeftf+i);
+	  }
+	  return *this;
+
+     }
+     else
+     {
+	  this->SEGMENT::operator=(st);
+	  for (i=0; i<nwords; i++)
+	  {
+	       *(daddsamp+i) = *(st.daddsamp+i);
+	       *(coeftf+i) = *(st.coeftf+i);
+          }
+	  return *this;
+     }
+}
+
+STATSEG& STATSEG::operator=(const SEGMENT& s)
+{
+     if (nwords==0)
+     {
+          SEGMENT(*this) = s;  // see alternative above
+          daddsamp = new double [nwords];
+          coeftf   = new complex[nwords];
+          lcoef    = new complex[nwords2];
+          scoef    = new complex[nwords2];
+          overlap  = new double[nwords2];
+          return *this;
+     }
+     else
+     {
+	  SEGMENT(*this) = s;
+	  return *this;
+     }
+}
+
+signed char STATSEG::castchar(double d)
+{
+   if (d>127.0 || d<-128.0)
+   {cerr << "BIG char: " << d << endl; exit(0);} return (signed char)(floor(0.5+d));
+}
+
+short int STATSEG::castshort(double d)
+{
+   if (d>32767.0 || d<-32768.0)
+   {cerr << "BIG short: " << d << endl;/* exit(0);*/}
+   return short(MAX(-32768.0, MIN(32767.0, floor(0.5+d))));
+}
+
+int STATSEG::castint(double d)
+{
+   if (d>8388607.0 || d<-8388608.0)
+   {cerr << "BIG int: " << d << endl; exit(0);} return  (int)(floor(0.5+d));
+}
+
+void STATSEG::transmag(int size)
+{
+   if (size==nwords)
+   {
+	 for (int i=0; i<nwords2; i++)
+     {
+         *(daddsamp+i) = 1.0E-4+norm(*(lcoef+i));
+  		 *(myPower+i) = *(daddsamp+i);       
+		 *(energy+i) = *(daddsamp+i);		 
+		 *(logmag+i) = 10.0*log10(*(daddsamp+i));
+     }
+   }
+   else
+   {
+     for (int i=0; i<nwords2; i++)
+     {
+         *(daddsamp+i) = 1.0E-4+norm(*(scoef+i));
+         *(energy+i) = *(daddsamp+i);
+         *(logmag+i) = 10.0*log10(*(daddsamp+i));
+     }
+   }
+}
+
+void STATSEG::transphi(void)
+{
+     for (int i=0; i<nwords2; i++) *(daddsamp+i) = arg(*(lcoef+i));
+}
+
+float STATSEG::exactdeltaell(const float& magbef, const float& magmid, const float& magaft)
+{
+
+/*
+ * Note that constants G, F and H are further divided by 2.0 because magnitudes are squared
+ *
+ */
+     static float	G=(float)(20/29.0/2.0),
+					F=(float)(20/32.75/2.0), 
+					H=(float)(20/32.75/2.0), 
+					C=(float)(3.0/M_PI),
+					sqrt3=(float)sqrt(3.0);
+     float edgelow, edgehig, Q, S, R;
+
+/*
+ * Note that 3.175 and 0.315 area squared because magnitudes are squared
+ *
+ */
+     edgelow=(float)(magaft*3.175*3.175); // was 3.2454, see Feb/Mar/Apr 05 report
+     edgehig=(float)(magaft*0.315*0.315); // was 0.3081, see Feb/Mar/Apr 05 report
+
+
+     if (magbef > edgelow)      // deltaell is < 0.29 , compute Q
+     {
+	 Q = pow( magbef / magmid , F);
+         return (float) (C*atan(sqrt3*((1.0-Q)/(1.0+Q))));
+     }
+     else
+     {
+        if (magbef < edgehig)  // deltaell is > 0.71 , compute S
+        {
+	    S = pow( magaft / magmid , H);
+            return (float)(C*atan(sqrt3*S/(2.0-S)));
+        }
+        else // compute R
+        {
+	    R = pow( magbef / magaft , G);
+            return (float)(C*atan(sqrt3/(1.0+2.0*R)));
+        }
+     }
+}
+#define TAMANHO_JANELA 512
+void STATSEG::searchtonal(TRANSFORM& transform, TRFTYPE trftype, statframe& frame, float sfreq, float bitrate, int tamanho)
+{
+	 //printf("Search Tonal 1\n");
+	 
+	 /* ajf [19-23].06.05 */
+     int i, j, t, binlim, niter;
+	 //int nbreaks, idxf0, hit, k, naccbreaks;
+     //int tmp, stopmatch, nextmatch, lastpitch, indtonal, npitch, pitchstp, pitchbrk;
+	 static int minpartials=4;
+     static int maxsinus=3;
+     static int maxpartials;  // ajf 23-08-01   35=4+31
+     static int maxmissing=7; // ajf 21.06.05 was 3
+     static int minmissing=3; // ajf 08.12.06
+     double dtmp, dtmp1, dtmp2;
+	 //double lastenergy, pitchacc, attaf, attbf;
+     //double pitchest, pitchnum, pitchden;
+	 static double edgemin=7.0; // 7 dB power domain ajf 18-07-03
+     static double totpower;
+     TRF transize = &TRANSFORM::invrealtransf; // AJF 03DEC06
+
+/*
+ * fundamental frequency is only allowed till 2100 Hertz
+ *
+ */
+     int ntonal;
+	 
+	 int highpitch=(int) floor(0.5+2100.0/(sfreq/tamanho));
+
+	 maxpartials = minpartials + MIN(14, MAX(0, (int) floor(0.5+bitrate/sfreq*32.0/4.0-4.0)));
+
+/* NEW CODE 30dec06 */
+
+/*
+ * set minimum and maximum lags for acceptable ranges of pitch frequencies
+ *
+ */
+	 //JM 15Fev08
+	 //static int minlag = (int)MAX(18.0, nwords/highpitch);	
+	 int minlag = (int)MAX(18.0, nwords/highpitch);
+     
+	 static int nf0values;	
+	 static double f0estimate[8], f0cepsmagn[8], f0likelihood[8];
+	 static double tonalpos[256], tonalmag[256], proxlimit=1.2, weight=0.875;
+
+     for (i=0; i<nwords2; i++) {tntyhz[i]=0.0;}
+
+     tonalsinfo.ntonal=0;
+
+     nf0values = 0;
+     for (i=0; i<8; i++)
+     {      
+		*(f0estimate+i)=1.0;
+		*(f0cepsmagn+i)=0.0;
+        *(f0likelihood+i)=0.0;
+     }
+
+     //JM 25Mai07
+	 nCa = 0;
+	 for(i=0; i<8; i++) {
+		myCepstrumEst[i] = 0; myCepstrumMag[i] = 0;
+	 }
+	 for(i=0; i<nwords2; i++)
+		myPower[i] = 0;
+	 //
+
+	 for (i=0; i<8; i++)
+     {
+         tonalsinfo.f0tonal[i]=0.0;
+         tonalsinfo.phitonal[i]=0.0;
+         tonalsinfo.magtonal[i]=1.0E-4;
+     }
+
+     nharmonicstructures=0;
+     for (i=0; i<8; i++)
+     {
+         harmonicstructure[i].nharmonic=0;
+         harmonicstructure[i].npause=0;
+         harmonicstructure[i].pospause=0;
+         harmonicstructure[i].f0harmonic=0.0;
+         harmonicstructure[i].accpower=1.0E-4; // ajf 23dec06
+
+         /* not really necessary
+         for (j=0; j<128; j++)
+         {
+             harmonicstructure[i].phiharmonic[j]=0.0;
+             harmonicstructure[i].magharmonic[j]=0.0;
+         }
+		 */
+     }
+
+     ntonal = 0;
+     binlim = int (tamanho / 2 - 1);
+
+	 niter = 1;
+   
+	 //printf("Search Tonal 2\n");
+/*
+ * Detects all relevant peaks in the spectrum (peak-peaking)
+ *
+ */
+     if (niter==1)  // if it is a transient, resolved tonals are not expected
+     {
+        // compute the cepstrum of the current frame
+
+        for (i=0; i<nwords2; i++)
+        {
+           *(recoeftf+i) = *(logmag+i);
+           *(imcoeftf+i) = 0.0;
+			//JM 25Mai07 -> só para fazer o cast
+		    //myPower[i] = logmag[i];
+		}
+        (transform.*transize)(recoeftf, imcoeftf, trftype);
+        for (i=0; i<nwords2; i++)
+        {
+           *(daddsamp+2*i) = *(recoeftf+i); //JM 17Mai07 -> Cepstrum está neste vector
+           *(daddsamp+1+2*i) = *(imcoeftf+i);
+        }
+
+        // enhance and smooth cepstrum information STEP 1/3
+        for (i=minlag; i<(nwords2-1); i++)
+        {
+           *(recoeftf+i) = *(daddsamp+i-1) + *(daddsamp+i) + *(daddsamp+i+1);
+        }
+        // enhance and smooth cepstrum information STEP 2/3
+        for (i=minlag; i<(nwords2-1); i++)
+        {
+           dtmp1 = *(recoeftf+i-1) - *(recoeftf+i);
+           dtmp2 = *(recoeftf+i+1) - *(recoeftf+i);
+           dtmp = MIN(dtmp1, dtmp2);
+           if (dtmp1>0 && dtmp2>0 && dtmp<0.25) // experimentally found on 16dec06
+           {
+              *(imcoeftf+i) = 0.5*(*(recoeftf+i-1) + *(recoeftf+i+1));
+              i++;
+           }
+           *(imcoeftf+i) = *(recoeftf+i);
+        }
+        // enhance and smooth cepstrum information STEP 3/3
+        for (i=minlag; i<(nwords2-1); i++)
+        {
+           *(recoeftf+i) = *(imcoeftf+i-1) + *(imcoeftf+i) + *(imcoeftf+i+1);
+        }
+
+
+		//for(i=0; i < nwords2; i++)
+		//	printf(" %f ", *(recoeftf+i));
+
+        // update record of 8 strongest F0 estimates in the cepstrum (peaks only)
+        i=minlag;
+        //preparing to look for the next local maximum
+        while (i<nwords2 && *(recoeftf+i) <= *(recoeftf+i-1)) i++;
+        while (i<nwords2)
+        {
+           while (i<nwords2 && *(recoeftf+i) > *(recoeftf+i-1)) i++; i--;
+		   for (t=0; t<8; t++)
+	       {
+				if (*(recoeftf+i) > *(f0cepsmagn+t)) // we just want to compare positive values
+				{
+					for (j=7; j>t; j--)
+					{
+						*(f0cepsmagn+j) = *(f0cepsmagn+j-1);
+						*(f0estimate+j) = *(f0estimate+j-1);
+					}
+					*(f0cepsmagn+t) = *(recoeftf+i);
+					*(f0estimate+t) = nwords / (double)i;
+					if (nf0values < 8) 
+						nf0values++;
+				 break; // exit loop for
+				}
+			}
+            i++;
+            // go to the next local minimum
+            while (i<nwords2 && *(recoeftf+i) <= *(recoeftf+i-1)) i++;
+        }
+	    
+		//printf("Search Tonal 21\n");
+		
+		//--JM 14Mai07
+		nCa = nf0values;
+		for (i=0; i < nf0values; i++) {
+			myCepstrumMag[i] = f0cepsmagn[i]; 
+			myCepstrumEst[i] = f0estimate[i];
+		}
+		//--
+
+	//JM 5Fev08 -> Comentei
+	
+	/*	
+	//finds spectral power for current frame
+	//NOTE: bins 0 and 1 are ignored since in very low power signals,
+	//the near-DC content may be very significant which blurs the evaluation
+	//of the relative power of the partials pertaining to an harmonic structure
+ 
+    totpower = 0.0;
+    for (k=2; k<binlim; k++) totpower += *(logmag+k);
+
+	lastpitch=0;
+
+
+	//Sets i such that it can be used afterwards to look
+	//for the next local maximum, ignoring any local maximum
+	//at bin 1. The dB of the first local minimum is lastenergy
+
+        lastenergy = *(logmag);
+        if (*(logmag+1) > *(logmag)) // bin 0 looks a local minimum
+        {
+            i=3;
+            if (*(logmag+2) <= *(logmag+1)) // ignores peak at bin 1 
+            {
+               while (i<binlim && *(logmag+i) <= *(logmag+i-1)) i++;
+	       lastenergy = *(logmag+i-1); // next minimum after bin i
+            }
+        }
+        else
+        {
+            i=2;
+            while (i<binlim && *(logmag+i) <= *(logmag+i-1)) i++;
+	    lastenergy = *(logmag+i-1);
+        }
+
+
+	//Searches for all local maxima, one at a time, by checking dB on each edge
+
+    for ( ; i<binlim; i++) {
+	  while (i<binlim && *(logmag+i) >= *(logmag+i-1)) i++;
+	  hit=i-1; i++;
+	  while (i<binlim && *(logmag+i) <= *(logmag+i-1)) i++;
+	  i--;
+	  attbf = *(logmag+hit) - lastenergy;
+	  attaf = *(logmag+hit) - *(logmag+i);
+
+
+
+	//42 dB = 20log(0.5*1024/4)
+
+	//if ((attbf > edgemin && attaf > edgemin) && *(logmag+hit) > 42.0) // see comment above
+	if ((attbf > edgemin || attaf > edgemin) && *(logmag+hit) > 42.0) // see comment above
+	{
+	     *(tntyhz+hit)=1.0;
+
+             dtmp = (double)exactdeltaell((float)*(energy+hit-1),(float) *(energy+hit),(float) *(energy+hit+1));
+
+	     *(tonalpos+ntonal) = dtmp+(double)hit;
+	     //*(tonalmag+ntonal) = *(energy+hit);    // here we store mag (not dB)
+	     *(tonalmag+ntonal) = *(logmag+hit);    //  changed on 23dec06
+
+	     for (t=0; t<maxsinus; t++) // update record of maxsinus highest peaks
+	     {
+	       if (*(logmag+hit) > *(tonalsinfo.magtonal+t))
+	       {
+	          for (j=maxsinus-1; j>t; j--)
+	          {
+	   	      tonalsinfo.f0tonal[j]=tonalsinfo.f0tonal[j-1]; 
+	   	      tonalsinfo.magtonal[j]=tonalsinfo.magtonal[j-1]; 
+	          }
+	          *(tonalsinfo.f0tonal+t) = *(tonalpos+ntonal);
+	          *(tonalsinfo.magtonal+t) = *(logmag+hit);  // here we store mag dB
+	          if (tonalsinfo.ntonal<maxsinus) tonalsinfo.ntonal++;
+	          break; // exit loop for
+	       }
+	     }
+	     ntonal++;
+	     lastpitch=hit;
+	   }
+	   lastenergy = *(logmag+i); // new local minimum
+	   i++; // prepares seach for next maximum
+	   }
+     */
+	 }
+
+	//JM 5Fev08 -> Comentei
+	
+	/*
+	//Estimate "pitch" only in the case of long windows (maximum spectral resolution)
+
+
+	     if (niter==1 && ntonal>0)
+             {
+	        for (idxf0=0; idxf0<nf0values; idxf0++)
+	        {
+                   indtonal=0;
+                   nbreaks=0; // instantaneous number of breaks in detecting an harmonic structure
+                   naccbreaks=0; //  accumulated number of breaks in detecting an harmonic structure
+                   pitchest = *(f0estimate+idxf0);
+                   pitchnum = 0.0;
+                   pitchden = 0.0;
+                   pitchacc = 1.0E-4; //calcula para todos
+                   npitch=0;
+                   pitchstp=0;
+                   pitchbrk=0;
+                   nextmatch=npitch+1;
+                   stopmatch=nextmatch;
+                   dtmp=1.0E4;
+                   weight=0.875;
+                   // printf("maxpartials - npitch = %i;  ntonal - indtonal = %i\n",maxpartials - npitch, ntonal - indtonal);
+                   while ((indtonal < ntonal) && (npitch < maxpartials))
+				   {
+                      // force indtonal to be slighly on the right-hand side of the estimated pitch
+                      while (indtonal<ntonal && *(tonalpos+indtonal) < pitchest*nextmatch) indtonal++;
+                      if (indtonal==ntonal) indtonal--; // has reached the right-most tonal
+
+                      if (*(tonalpos+indtonal) > pitchest*nextmatch)
+					  {
+                         dtmp = fabs(*(tonalpos+indtonal) - pitchest*nextmatch);
+                         if (indtonal>0)
+                         {
+                            dtmp1 = fabs(pitchest*nextmatch - *(tonalpos+indtonal-1));
+                            if (dtmp1 < dtmp) {indtonal--; dtmp=dtmp1;}
+                         }
+                      }
+                      else // is <= i.e., has reached the right-most tonal
+					  {
+                         dtmp = fabs(pitchest*nextmatch - *(tonalpos+indtonal));
+                      }
+
+                      if (dtmp < proxlimit) // distance less than 1 bin
+                      {
+                         npitch++;
+                         pitchnum += nextmatch * *(tonalpos+indtonal);
+                         pitchden += nextmatch*nextmatch;
+                         pitchest  = pitchnum/pitchden*(1.0-weight) + *(f0estimate+idxf0)*weight;
+                         weight *= 0.875;
+                         pitchacc += *(tonalmag+indtonal);
+                         nextmatch++; indtonal++;
+                         stopmatch=nextmatch;
+                      }
+                      else // harmonic discontinuity
+                      {
+                         nbreaks++;
+                         naccbreaks++;
+                         if (nbreaks>1 || naccbreaks > 3) break; // exit loop while
+                         nextmatch++;
+                         while (indtonal < ntonal && (nextmatch-stopmatch) <= maxmissing)
+						 {
+                            // force indtonal to be slighly on the right-hand side of the estimated pitch
+                            while (indtonal<ntonal && *(tonalpos+indtonal) < pitchest*nextmatch) indtonal++;
+                            if (indtonal==ntonal) indtonal--; // has reached the right-most tonal
+
+                            if (*(tonalpos+indtonal) > pitchest*nextmatch)
+                            {
+                               dtmp = fabs(*(tonalpos+indtonal) - pitchest*nextmatch);
+                               if (indtonal>0)
+                               {
+                                  dtmp1 = fabs(pitchest*nextmatch - *(tonalpos+indtonal-1));
+                                  if (dtmp1 < dtmp) {indtonal--; dtmp=dtmp1;}
+                               }
+                            }
+                            else // is <= i.e., has reached the right-most tonal
+                            {
+                               dtmp = fabs(pitchest*nextmatch - *(tonalpos+indtonal));
+                            }
+
+                            if (dtmp < proxlimit) // has recovered discontinuity
+                            {
+                               npitch++;
+                               pitchnum += nextmatch * *(tonalpos+indtonal);
+                               pitchden += nextmatch*nextmatch;
+                               pitchest  = pitchnum/pitchden*(1.0-weight) + *(f0estimate+idxf0)*weight;
+                               weight *= 0.875;
+                               pitchacc += *(tonalmag+indtonal);
+                               pitchstp  = nextmatch-stopmatch;
+                               pitchbrk  = stopmatch;
+                               if ((pitchstp <= minmissing) && ((npitch+pitchstp) < maxpartials)) // ignore break
+                               {
+                                  nbreaks--;
+                                  // take into consideration the energy of the partials in the ignored break
+                                  for (t=stopmatch; t<nextmatch; t++)
+                                  {
+                                     hit = (int)floor(pitchest*(double)t);
+                                     //pitchacc += *(energy+hit);
+                                     pitchacc += *(logmag+hit); // changed on 23dec06
+                                  }
+                                  npitch += pitchstp;
+                                  nextmatch++; indtonal++;
+                                  stopmatch=nextmatch; pitchstp=0;
+                               }
+                               else
+                               {
+                                  nextmatch++; indtonal++;
+                               }
+                               break; // exit loop while
+                            }
+                            nextmatch++;
+                            if (indtonal==(ntonal-1)) indtonal++;
+                         }
+                      }
+                   }
+                   // does not give desired results if (npitch>0) pitchacc /= (double)npitch;
+                   // rank harmonic patterns according to decreasing power
+	           for (t=0; t<8; t++)
+	           {
+	              if (pitchacc == harmonicstructure[t].accpower) break; // do not repeat same solution
+	              if (pitchacc > harmonicstructure[t].accpower)
+	              {
+                         
+	                 for (j=7; j>t; j--)
+	                 {
+                             harmonicstructure[j].nharmonic  = harmonicstructure[j-1].nharmonic;
+                             harmonicstructure[j].npause     = harmonicstructure[j-1].npause;
+                             harmonicstructure[j].pospause   = harmonicstructure[j-1].pospause;
+                             harmonicstructure[j].f0harmonic = harmonicstructure[j-1].f0harmonic;
+                             harmonicstructure[j].accpower   = harmonicstructure[j-1].accpower;
+	                 }
+                         harmonicstructure[t].nharmonic  = npitch;
+                         harmonicstructure[t].npause     = pitchstp;
+                         harmonicstructure[t].pospause   = pitchbrk;
+                         harmonicstructure[t].f0harmonic = pitchnum/pitchden;
+                         harmonicstructure[t].accpower   = pitchacc;
+                         if (nharmonicstructures < 8) nharmonicstructures++;
+                         break; // exit loop for
+	              }
+	           }
+	        }
+
+                // compute likelihood of each F0 estimate
+	        for (t=0; t<nharmonicstructures; t++)
+	        {
+                    *(f0likelihood+t) = harmonicstructure[t].accpower; // could be normalized
+                    hit=-1; dtmp1 = 1.0E4;
+	            for (j=0; j<8; j++)
+	            {
+                       dtmp2 = fabs(harmonicstructure[t].f0harmonic - *(f0estimate+j));
+                       if (dtmp2 < dtmp1)
+                       {
+                          hit = j; dtmp1 = dtmp2;
+                       }
+	            }
+                    if (hit>-1) *(f0likelihood+t) *= *(f0cepsmagn+hit);
+                    else *(f0likelihood+t) = 0.0;
+	        }
+                // new alignment
+	        for (t=0; t<nharmonicstructures-1; t++)
+	        {
+	           for (j=t+1; j<nharmonicstructures; j++)
+	           {
+	              if (*(f0likelihood+j) > *(f0likelihood+t))
+                      {
+                          tmp = harmonicstructure[t].nharmonic;
+                          harmonicstructure[t].nharmonic = harmonicstructure[j].nharmonic;
+                          harmonicstructure[j].nharmonic = tmp;
+                          tmp = harmonicstructure[t].npause;
+                          harmonicstructure[t].npause    = harmonicstructure[j].npause;
+                          harmonicstructure[j].npause    = tmp;
+                          tmp = harmonicstructure[t].pospause;
+                          harmonicstructure[t].pospause  = harmonicstructure[j].pospause;
+                          harmonicstructure[j].pospause  = tmp;
+                          dtmp = harmonicstructure[t].f0harmonic;
+                          harmonicstructure[t].f0harmonic = harmonicstructure[j].f0harmonic;
+                          harmonicstructure[j].f0harmonic = dtmp;
+                          dtmp = harmonicstructure[t].accpower;
+                          harmonicstructure[t].accpower   = harmonicstructure[j].accpower;
+                          harmonicstructure[j].accpower   = dtmp;
+                          dtmp = *(f0likelihood+t);
+                          *(f0likelihood+t) = *(f0likelihood+j);
+                          *(f0likelihood+j) = dtmp;
+                      }
+	           }
+	        }
+
+	//for (t=0; t<nharmonicstructures; t++)
+    //               {
+	//cout << "Struct " << t << " npitch " << harmonicstructure[t].nharmonic << " npause " <<
+	//harmonicstructure[t].npause
+	//<< " pospause " << harmonicstructure[t].pospause << " f0 " << harmonicstructure[t].f0harmonic
+	//<< " accpower " << harmonicstructure[t].accpower << " likelihood " << *(f0likelihood+t)
+	//<< endl;
+    //               }
+
+
+
+                if (harmonicstructure[0].accpower >= 0.035*totpower)
+                {
+                   frame.sinusinfo.nharmonic=harmonicstructure[0].nharmonic;
+                   frame.sinusinfo.f0harm.word=dirqzf0_16((float)harmonicstructure[0].f0harmonic);
+        		   frame.sinusinfo.f0harm.bits=16;
+        	       frame.sinusinfo.npause=harmonicstructure[0].npause;
+       	           frame.sinusinfo.pospause=harmonicstructure[0].pospause;
+                   harmonicstructure[0].f0harmonic = invqzf0_16(frame.sinusinfo.f0harm.word);
+                }
+                else
+                {
+                   harmonicstructure[0].nharmonic = 0;
+                   frame.sinusinfo.nharmonic=0;
+                   frame.sinusinfo.f0harm.word=0;
+                   frame.sinusinfo.f0harm.bits=16;
+        	   frame.sinusinfo.npause=0;
+        	   frame.sinusinfo.pospause=0;
+                }
+
+                frame.sinusinfo.ntonal=0;
+                tonalsinfo.ntonal=0; // old variables, still used in synttonal
+             } else
+			 {
+					frame.sinusinfo.nharmonic=0;
+					frame.sinusinfo.ntonal=0;
+			 }
+
+	//NEW CODE 30dec06
+	*/
+}
+
+
+
+void STATSEG::dirsegtrans (TRANSFORM& transform, WINDOW& window,
+			  TRFTYPE trftype, WSWITCH wswitch)
+{
+     int i, j, len, len2, len4, start, stop;
+     TRF transize = &TRANSFORM::dirrealtransf; //Endereço do codigo da classe
+
+     if ((len=transform.size()) > nwords)    // cuidado com precedencia
+        {cerr << "STATSEG::dirsegtrans_1" << endl; exit(0);}
+     len2 = len >> 1;
+     if (len == nwords)
+     {
+	nshort=1;
+	
+	//printf("Tamanho da transformada: %d, nwords: %d\n", transform.size(), nwords);
+	//printf("Tamanho da janela: %d, nwords: %d\n", window.size(), nwords);
+	
+	if (window.size() != nwords) {cerr << "STATSEG::dirsegtrans_2" << endl; exit(0);}
+	window.filterwin(daddsamp, wswitch);
+        for (i=0; i<len2; i++)
+        {
+           *(recoeftf+i) = *(daddsamp+2*i);
+           *(imcoeftf+i) = *(daddsamp+2*i+1);
+        }
+        (transform.*transize)(recoeftf, imcoeftf, trftype); // ajf 5/9/00
+        for (i=0; i<len2; i++)
+        {
+           *(lcoef+i) = complex(*(recoeftf+i), *(imcoeftf+i));
+			//printf(" bin(%i)=%f\n",i,(*(recoeftf+i))*(*(recoeftf+i)) + (*(imcoeftf+i))*(*(imcoeftf+i)));
+        }
+	 }
+     else
+     {		
+	if ((nshort = nwords/len) !=2 && nshort!=4 && nshort!=8)
+	   {cerr << "STATSEG::dirsegtrans_3" << endl; exit(0);}
+	len4 = len2 >> 1;				// mirror edges of MDCT
+	for (i=0; i<nshort; i++)
+	{
+	   start=nwords4-len4+i*len2; stop=start+len;
+	   if (window.size() != len)
+	      {cerr << "STATSEG::dirsegtrans_4" << endl; exit(0);}
+	   for (j=0; start<stop; j++, start++) *(tmpdbl+j) = *(daddsamp+start); 
+	   window.filterwin(tmpdbl, REGULAR);
+           for (j=0; j<len2; j++)
+           {
+              *(recoeftf+j) = *(tmpdbl+2*j);
+              *(imcoeftf+j) = *(tmpdbl+1+2*j);
+           }
+           (transform.*transize)(recoeftf, imcoeftf, trftype);
+	   start=i*len2; stop=start+len2;
+	   for (j=0; start<stop; j++, start++) *(scoef+start) = complex(*(recoeftf+j), *(imcoeftf+j));
+	}
+     }
+}
+
+// para já não se remove...
+void STATSEG::resettonal()
+{
+     int i;
+     for (i=0; i<nwords2; i++) *(syntcoef+i)=complex(0.0, 0.0);
+}
+
+long int STATSEG::dirqzf0_16(float frequency)
+{
+        long int k, exponent, mantissa; // expoente: 3 bits, mantissa: 13 bits (14 reais)
+
+        if (frequency<1.0 || frequency>511.0) // ajf 16/08/01 so' admite de bin 2 ate' bin 511
+        {
+           cerr << "ERROR STATSEG::dirqzf0_16 frequency: " << frequency << endl;
+        }
+        k=(long int)floor(frequency); exponent=0;
+        k >>= 1;
+        while (k) {k >>= 1; exponent++;}
+        mantissa=(long int)floor(0.5+frequency*(float)(1<<(13-exponent)));
+        mantissa = mantissa & 0x1FFF;
+        return ((exponent << 13) | mantissa);
+}
+
+float STATSEG::invqzf0_16(long int value)
+{
+        long int exponent, mantissa; // expoente: 3 bits, mantissa: 13 bits (14 reais)
+        float tmpfreq;
+
+        exponent = (value >> 13);
+        mantissa = (1<<13) | (value & 0x1FFF);
+        tmpfreq = (float)(mantissa)/(float)(1<<(13-exponent));
+
+        return tmpfreq;
+}
+
+
+
+#endif

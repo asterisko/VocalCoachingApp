@@ -1,0 +1,948 @@
+#include "tpitchshiftorig.h"
+
+#include <math.h>
+#include <iostream>
+
+//Transformada
+#include "searchtonal/window.h"
+#include "searchtonal/segment.h"
+#include "searchtonal/statseg.h"
+#include "searchtonal/transform.h"
+
+//Debug
+#define LOG_LEVEL LOG_DEBUG 
+#include "logging.h"
+
+#define DBG(...)
+
+#ifndef M_PI
+#define M_PI 3.14159265358979323846
+#endif
+
+tpitchshiftorig::tpitchshiftorig(int NBINS2_, int Fs_)
+{
+	int i, j;
+	
+	//Número de amostras
+	NBINS2  = NBINS2_;
+	NBINS   = NBINS2 << 1;
+	NNBINS  = NBINS + NBINS2;
+
+	//Frequência de amostragem
+	Fs = Fs_;
+	
+	//Factor de ganho
+	gain = (float)pow(2.0, 15.0);
+
+	//Init STATSEG
+	out = new STATSEG(NBINS);
+	
+	//Init estrutura "statframe" e define janela a usar 
+	sframe = new statframe();
+	sframe->janela = REGULAR;	
+
+	//Transformada
+	transf = new TRANSFORM(NBINS);
+	
+	//Janela a aplicar na ODFT
+	window = new WINDOW(NBINS, SINE);
+
+	//Vector para guardar os dados de entrada modificados;
+	audioData    = new double[NBINS];
+	audioDataAlt = new float[NBINS];
+	//Vectores para I\0
+	TimeAnalysisData = new float[NNBINS];
+	TimeSynthesisData = new float[NNBINS];
+	//Vector das marcas de sintese
+	syntPitchMarkIndex = new int[NBINS2]; //No pior dos casos o tamanho é NBINS2
+	//Vector para mapeamento dos segmentos de transladação
+	mapPitchMark = new int[NBINS2]; //No pior dos casos o tamanho é NBINS2
+	//Vector das marcas de análise
+	pitchMarkSharp = new float[NBINS2]; //No pior dos casos o tamanho é NBINS2
+	pitchMarkIndex = new int[NBINS2]; //No pior dos casos o tamanho é NBINS2
+
+	for(i = 0; i < NNBINS; i++)
+		TimeAnalysisData[i] = TimeSynthesisData[i] = 0.0f;
+
+	for(i = 0; i < NBINS; i++) { 
+		audioData[i] = 0.0;
+		audioDataAlt[i] = 0.0f;
+	}
+	for(i = 0; i < NBINS2; i++) {
+		pitchMarkSharp[i] = 0.0f;
+		pitchMarkIndex[i] = syntPitchMarkIndex[i] = mapPitchMark[i] = 0; 
+	}
+
+    //Histórico de T0
+	currT0 = 0;
+	prevT0 = 0;	
+	numPrevT0 = 3;
+	prevT0Vector = new int[numPrevT0];
+	prevWeight = new float[8];	
+	for(i = 0; i < numPrevT0; i++)
+		prevT0Vector[i] = 0;
+	
+	//Vectores para comparação da métrica de T0
+	meanIndexT0 = new int[8];
+	meanMaxT0 = new float[8];
+	//Vectores de candidatos (8 candidatos)
+	T0Candidate = new int[8];
+	T0CandidateValue = new float[8];
+	//Vector de peso no cepstrum
+	cepstrumWeight = new float[8];	
+	for(i = 0; i < 8; i++) {
+		T0Candidate[i] = meanIndexT0[i] = 0;
+		T0CandidateValue[i] = cepstrumWeight[i] = prevWeight[i] = meanMaxT0[i] = 0.0f;
+	}
+
+	PManalLeft = PManalRight = PMsyntLeft = PMsyntRight = 0; // FA
+
+	//Janelas de co-seno
+	timeWindowArray = (float **) malloc((NBINS2+1)*sizeof(float *));
+	timeWindowArray[0] = new float[1]; 
+	timeWindowArray[0][0] = 0.5f; // para casos "especiais"
+	for(i = 1; i <= NBINS2; i++) {
+		timeWindowArray[i] = new float[i];
+		for(j = 0; j < i; j++)
+			timeWindowArray[i][j] = 0.5f * (1.0f + cos((float)M_PI * (float)j / (float)i));
+	}
+
+	//Tamanho da janela de procura
+	halfwindow = 4;
+
+	//% da janela a usar na estimação de T0 e extracção das marcas
+	skirtT0 = 0.15f;
+
+	//Indicação de vozeamento
+	currFrameVoiced = 0;
+	prevFrameVoiced = 0;	
+
+	//Marcas sincronização para a análise e sintese
+	firstValidMark = 0;
+	firstPitchSampleIn = 0; 
+    syntFirstPitchSampleIn = 0;
+
+	//Thresholds para detecção vozeamento
+    voicingThres = 1.2f;    //AJF
+	powerThres = 20.0f;
+	markSharpThresh = 0.4f; //AJF
+
+	//Offset na procura de T0
+	offset = 0;
+	prevOffset = 0;
+
+	//Periodo de transição de análise
+	rangeOnTheRight = 0;
+	//JM 30Fev08 	
+	minF0skirt = 5; //folga de 5Hz
+	maxF0 = 1.0f / ((float)NBINS2 / (float)Fs) + minF0skirt;
+	maxBin = (int)floor(0.5f + (float)Fs / maxF0);
+}
+
+tpitchshiftorig::~tpitchshiftorig()
+{
+	int i;
+	
+	//Transformada
+	delete out; delete sframe; delete transf; delete window;
+		
+	//Processamento I\O
+	delete[] audioData; delete[] audioDataAlt;
+
+	//Estimação de T0
+	delete[] T0Candidate; delete[] meanIndexT0; delete[] prevT0Vector; 
+	delete[] T0CandidateValue; delete[] meanMaxT0; delete[] cepstrumWeight; 
+	delete[] prevWeight;
+		
+	//Extracção das marcas de pitch de análise
+	delete[] pitchMarkIndex; delete[] pitchMarkSharp;
+
+	//Extracção das marcas de pitch de sintese
+	delete[] syntPitchMarkIndex; delete[] mapPitchMark;
+
+	//Apagar janelas de transladação
+	for(i = NBINS2; i >= 0; --i) delete timeWindowArray[i];
+	delete timeWindowArray;
+}
+
+void tpitchshiftorig::init()
+{
+	int i;
+	
+	currT0 = 0;
+	prevT0 = 0;	
+	
+	difT0;
+	offset = 0;
+	prevOffset = 0;
+	meanPowerdB = 0;
+	numCandidates = 0;
+	currFrameVoiced = 0;
+	prevFrameVoiced = 0;	
+
+	firstValidMark = 0;
+	firstPitchSampleIn = 0; 
+    syntFirstPitchSampleIn = 0;
+
+	for(i = 0; i < NNBINS; i++)
+		TimeAnalysisData[i] = TimeSynthesisData[i] = 0.0f;
+
+	for(i = 0; i < NBINS; i++) { 
+		audioData[i] = 0.0;
+		audioDataAlt[i] = 0.0f;
+	}
+	for(i = 0; i < NBINS2; i++) {	
+		pitchMarkSharp[i] = 0.0f;		
+		pitchMarkIndex[i] = syntPitchMarkIndex[i] = mapPitchMark[i] = 0; 
+	}
+
+	for(i = 0; i < 8; i++) {
+		T0Candidate[i] = meanIndexT0[i] = 0;
+		T0CandidateValue[i] = cepstrumWeight[i] = prevWeight[i] = meanMaxT0[i] = 0.0f;
+	}
+	
+	for(i = 0; i < numPrevT0; i++)
+		prevT0Vector[i] = 0;	
+}
+
+void tpitchshiftorig::process(float* indata, float* outdata, float shiftFactor)
+{	 
+	int i, j;
+
+	//------------------------------------------//
+	//  Actualização do factor de pitch actual  // AJF 12Jul07
+	//------------------------------------------// 
+
+	//AJF 20Jun07
+	shiftFactor = MAX(-0.5f, MIN(0.5f, shiftFactor));
+	if(shiftFactor <= 0.0f)
+		periodShift = 1.0f / (1.0f + shiftFactor); //Gama: [1.0 2.0]
+	else
+		periodShift = 1.0f - shiftFactor; //Gama: [0.5, 1.0]
+	
+	pitchRange = MIN(1.2f, periodShift);
+	
+	 //------------------------------------------//
+	 //            Rotação de vectores           // JM 21Mai07 -> (ok)
+	 //------------------------------------------//  
+	 //Shift à esquerda
+	 for(i = 0; i < NBINS; i++) {
+		TimeAnalysisData[i]  = TimeAnalysisData[NBINS2+i];		
+		TimeSynthesisData[i] = TimeSynthesisData[NBINS2+i];
+	 }	
+     //Dados novos
+	 for(i = 0; i < NBINS2; i++) {
+		TimeAnalysisData[NBINS+i]  = indata[i];
+		TimeSynthesisData[NBINS+i] = 0.0f;
+	 }
+
+	 //-----------------------------------------------------//
+	 //  Conversão e versão modificada do sinal de entrada  // JM 15Mai07 -> (ok)
+	 //-----------------------------------------------------// 
+	 for(i = 0; i < NBINS; i++) 
+	 { 
+		//Cria versão do sinal de entrada para processamento (search tonal) e teste (estimação de T0)
+		if(TimeAnalysisData[NBINS2+i] <= 0.0f) audioDataAlt[i] = 0.0f;
+		else                                   audioDataAlt[i] = TimeAnalysisData[NBINS2+i] * gain; //Versão para testar
+		audioData[i] = (double)(TimeAnalysisData[NBINS2+i] * gain); //Versão para processar
+	 }
+	 for(i = 0; i < NBINS2; i++) {
+		pitchMarkIndex[i] = syntPitchMarkIndex[i] = mapPitchMark[i] = 0; 
+		pitchMarkSharp[i] = 0.0f;
+	}
+	for(i = 0; i < 8; i++) { 
+		meanIndexT0[i] = 0;
+		meanMaxT0[i] = cepstrumWeight[i] = 0.0f;
+	}
+
+	 //------------------------------------------//
+	 //             Candidatos a  T0             //
+	 //------------------------------------------//
+	 
+	 //JM 29Jan08 -> Este bloco de código estava na parte de visualização!
+	 out->getdouble(audioData);
+	 out->dirsegtrans(*transf, *window, ODFT, REGULAR); 
+	 out->transmag(NBINS);
+	 tmpDoublePtr3 = out->getPower();
+	 meanPowerdB = 0.0f;
+	 for(i = 0; i < NBINS2; i++) {
+		meanPowerdB += 10.0f * (float)log10(tmpDoublePtr3[i]); //Aqui é que calcula a potência em dB
+	 }
+	 meanPowerdB = meanPowerdB / (float)(NBINS2);
+	 //---------//
+	 out->searchtonal(*transf, ODFT, *sframe, (float) Fs, (float)16 * Fs, NBINS);
+	 
+	 numCandidates = out->getNumCandidates();
+	 tmpDoublePtr1 = out->getEstimate();
+	 tmpDoublePtr2 = out->getMagnitude();
+	 for(i = 0; i < numCandidates; i++) {
+		T0Candidate[i] = (int)((double)NBINS / tmpDoublePtr1[i]); 
+		T0CandidateValue[i] = (float)tmpDoublePtr2[i];
+	 }	
+
+	 //------------------------------------------//
+	 //   Primeira decisão vozeado\não vozeado   // JM22Maio07 -> Ok
+	 //------------------------------------------//
+	 //1.2 ou 1.4 descaracteriza unvoiced mas compõe voiced, em geral soa pior que 1.6 (faz o contrario)
+	
+	 //printf("meanPowerdB: %f\n", meanPowerdB);
+	 if(meanPowerdB > powerThres) { //A ajustar experimentalmente ..
+		 currFrameVoiced = 1;
+	 }
+	 else {
+		 currFrameVoiced = 0;
+		 currT0 = 0;
+	 }
+
+	 //-----------------------------------------------------//
+	 //   Antecipa alinhamento com marca de pitch anterior  //
+	 //-----------------------------------------------------//
+     if (currFrameVoiced && prevFrameVoiced) //Frame anterior e actual vozeada
+	 {	   
+		 //Equivalente ao Matlab...por isso subtrai-se no final do calculo
+		 offset = 0 + (prevOffset) - fix((float)(prevOffset ) /(float) halfwindow) * halfwindow; //JL
+		 DBG(if(offset<0 || offset>NBINS2-1 || prevOffset<0 || prevOffset>NBINS2-1) printf ("offset=%i prevoffset=%i halfwindow=%i\n",offset,prevOffset,halfwindow);) // FAFA
+	 } else offset = 0;	//JL
+	
+	//------------------------------------------//
+	//             Estimação de T0              //
+	//------------------------------------------//          
+	nbins = 0;	 
+	tmpInt1 = tmpInt2 = 0; 
+	tmpFloat1 = tmpFloat2 = tmpFloat3 = 0.0f;
+	centerwindow = centerbin = 0;	 
+	for(i = 0; i < numCandidates; i++)
+	{
+		numDesloc = 0;
+		centerbin = offset;
+		tmpFloat2 = 0.0f;  //Maior máximo de média acumulada obtida
+		while (centerbin < T0Candidate[i])
+		{
+			nbins = 1;         //Número de bins acumulados 
+			tmpFloat1 = 0.0f;  //Acumulador
+			centerwindow = centerbin;
+			while (centerwindow < NBINS)
+			{
+				DBG(if(centerwindow<0 || centerwindow>NBINS - 1) printf("centerwindow error\n");) // FA
+				tmpInt1 = MAX(0,         centerwindow - (int)floor(0.5 + (T0Candidate[i] + 1) * skirtT0)); //Indice inferior
+				tmpInt2 = MIN(NBINS - 1, centerwindow + (int)floor(0.5 + (T0Candidate[i] + 1) * skirtT0)); //Indice superior
+				tmpFloat1 += calcSum(audioDataAlt, tmpInt1, tmpInt2);
+				
+				centerwindow += T0Candidate[i]; //Ponto central da janela
+                
+				nbins = nbins + (tmpInt2 - tmpInt1 + 1); //Número de bins processados
+				
+			}
+			tmpFloat1 = tmpFloat1 / nbins;      //Média da acumulação
+			centerbin = centerbin + halfwindow; //Actualização do passo de procura
+				
+			if(tmpFloat1 > tmpFloat2) 
+			{					
+				tmpFloat2 = tmpFloat1; 
+				//Actualiza indices de métrica
+				meanMaxT0[i] = tmpFloat1; //Retira o máximo valor  para o deslocamento actual
+				meanIndexT0[i] = numDesloc; //Retira o máximo indice para o deslocamento actual
+			}
+			numDesloc++;  //Incrementa deslocamento
+		}
+	}
+	
+	if(currFrameVoiced)
+	{
+		//Calculo dos pesos para T0
+		for(i = 0; i < numCandidates; i++)
+		{
+			cepstrumWeight[i] = T0CandidateValue[i] / T0CandidateValue[0];
+		
+			prevWeight[i] = 0.0f;
+			for(j = 0; j < numPrevT0; j++) 
+			{
+				prevWeight[i] += (float)(abs(T0Candidate[i] - prevT0Vector[j])) / (float)(MAX(T0Candidate[i], prevT0Vector[j]));	
+			
+			}
+			prevWeight[i] = 1.1f - (prevWeight[i] / numPrevT0);
+		}
+		//Pesa o T0 pelos T0's anteriores e o peso no cepstrum e toma decisão
+		T0Index = 0; 	
+		tmpT0Value = maxT0Value = 0.0f;	
+		for(i = 0; i < numCandidates; i++)
+		{ 
+			tmpFloat1 = meanMaxT0[i] * cepstrumWeight[i] * prevWeight[i];
+			if(tmpFloat1 > tmpFloat2) //Busca o máximo valor e guarda o indice 
+			{
+				T0Index = i;		
+				tmpFloat2 = tmpFloat1;
+				T0Value = tmpFloat2;
+			}
+		}
+		currT0 = T0Candidate[T0Index];
+	
+		//------------------------------------------//
+		//   Segunda decisão vozeado\não vozeado    //
+		//------------------------------------------//	    
+		tmpFloat1 = 0.0f;
+		if(numCandidates > 1)
+		{
+			if(T0Index >= 1) // JL 	
+			tmpFloat1 = tmpFloat1 + calcSum(T0CandidateValue, 0, T0Index - 1); //Da outra forma não tinha lógica
+			tmpFloat1 = tmpFloat1 + calcSum(T0CandidateValue, T0Index + 1, numCandidates - 1); //Atenção... o que~é passado a calcSum são indices do vector a ser acumulado!							
+			tmpFloat1 /= (numCandidates - 1); //Está bem porque exclui o candidadato mais proeminente
+			tmpFloat1 = T0CandidateValue[T0Index] / (0.01f + tmpFloat1);
+		}
+		else
+			tmpFloat1 = 0.0f;
+
+		
+		if(tmpFloat1 < voicingThres) //A ajustar experimentalmente
+		{
+			currFrameVoiced = 0;
+			currT0 = 0;
+		}
+	}
+	
+	//JM 20Fev08
+	//if(currT0 + 1 >= 440) { currFrameVoiced = 0; currT0 = 0; }
+	if(currT0 + 1 >= maxBin) { currFrameVoiced = 0; currT0 = 0; }	
+	//printf("%i ", maxBin);
+	//
+
+	//---------------------------------------------//
+	//   Extracção das marcas de pitch de análise  //
+	//---------------------------------------------//	
+	if(currFrameVoiced)
+	{
+		if (prevFrameVoiced)//Frame anterior vozeada
+		{		
+			tmpT0 = 0;
+			tmpInt3 = 0;
+			analPitchMarks = 0;
+			centerwindow = firstPitchSampleIn;
+		    difT0 = (float)(currT0 - prevT0) / (float)(NBINS2);				
+			while (centerwindow < NBINS2)
+			{
+				tmpT0 = prevT0 + difT0 * (float)(centerwindow);
+				pitchMarkIndex[analPitchMarks] = centerwindow;  	
+				tmpInt3 = (int)floor(0.5 + (tmpT0 / (1.0 - difT0))); //Diferencial de T0
+				
+				if (tmpInt3 < 0.5 * currT0 || tmpInt3 > 2.0 * currT0) //AJF 6Jun07	
+					centerwindow = centerwindow + currT0; //Em caso de convergência dificil
+				else
+					centerwindow = centerwindow + tmpInt3;   //Regra de aproximação linear	  
+
+				analPitchMarks++; //Incrementa número de marcas de análise
+			}
+			while (centerwindow < NBINS)
+			{
+				pitchMarkIndex[analPitchMarks] = centerwindow;
+	 			centerwindow = centerwindow + currT0; 				
+				analPitchMarks++; //Incrementa número de marcas de análise
+			}
+
+			//AJF 6Jun07
+			while(pitchMarkIndex[analPitchMarks - 1] + currT0 < NBINS) 
+			{
+				pitchMarkIndex[analPitchMarks] = pitchMarkIndex[analPitchMarks - 1] + currT0;
+				analPitchMarks++;
+			}
+		}
+		else //Frame anterior não vozeada
+		{
+			//printf("----> Frame Anterior não vozeada <----\n");
+			prevT0 = currT0;
+			//printf("U prevT0: %d\n",prevT0);
+			difT0 = 0.0f;
+			analPitchMarks = 0;
+			tmpInt1 = tmpInt2 = 0;			
+			tmpInt3 = (int)floor(0.5 + skirtT0 * (currT0 + 1)); //28 de Maio
+			centerwindow = offset + meanIndexT0[T0Index] * halfwindow;
+			while (centerwindow < NBINS) {
+				tmpInt1 = MAX(0, centerwindow - tmpInt3);
+				tmpInt2 = MIN(NBINS - 1, centerwindow + tmpInt3);			
+				pitchMarkIndex[analPitchMarks] = centerwindow;
+				pitchMarkSharp[analPitchMarks] = calcSum(audioDataAlt, tmpInt1, tmpInt2) / MAX(1.0f, (tmpInt2 - tmpInt1 + 1));
+				centerwindow = centerwindow + currT0;		
+				analPitchMarks++;
+			}
+
+			//Usar também valor máximo max(pitchMarkSharp) para determinar voicing ?
+			tmpInt1 = 0;
+			tmpFloat1 = 0.0f;
+			calcMax(pitchMarkSharp, analPitchMarks - 1, 0, &tmpInt1, &tmpFloat1); // -1 para ser usado como indice
+			if(tmpFloat1 < 1.0f)
+				tmpFloat1 = 1.0f;
+	
+			for(i = 0; i < analPitchMarks; i++)
+				pitchMarkSharp[i] = pitchMarkSharp[i] / tmpFloat1;
+		}
+		analPitchMarks = analPitchMarks - 1; //Para poder ser usado para indexação na síntese PSOLA
+		DBG(if(analPitchMarks < 0) printf("erro 15.1\n");) // FA&JL
+	}
+
+	if (analPitchMarks < 2) { //AJF 16jun07 //JM 03Jun07 -> Funciona como indice (tem de existir pelo menos 2 pitchMarks)
+		currFrameVoiced = 0;
+        currT0 = 0;
+	}
+	
+DBG( if(currFrameVoiced) {
+		if(pitchMarkIndex[0] < 0) {
+			printf("Primeira marca menor que 0\n");
+			printf("Frame actual vozeada|anterior vozeada: %i|%i\n", currFrameVoiced, prevFrameVoiced);
+		}
+		if(pitchMarkIndex[analPitchMarks] >= NBINS) {
+			printf("Última marca maior que 1023: %i\n", pitchMarkIndex[analPitchMarks]);
+			printf("Frame actual vozeada|anterior vozeada: %i|%i\n", currFrameVoiced, prevFrameVoiced);
+			printf("Marcas de análise: ");
+			for(i = 0; i <= analPitchMarks + 1; i++)
+				printf(" %i ", pitchMarkIndex[i]);
+			printf("\n");
+		}
+		} ) // DBG
+
+	//------------------------------------------//
+	//   Estabelecer primeira marca de sintese  // JM 16Mai07 -> (ok)
+	//------------------------------------------//
+	if(prevFrameVoiced) 
+		//Se a frame anterior vozeada -> fixa primeira marca superior a N2 na frame anterior para sincronização
+		syntPitchMarkIndex[0] = MAX(0, syntFirstPitchSampleIn);	//AJF 16Jun07
+	else 
+	{
+		//Frame anterior não vozeada e actual vozeada -> procurar primeira marca de pitch válida
+		if(currFrameVoiced) 
+		{
+			tmpInt1 = 0;
+			while( (tmpInt1 <= analPitchMarks) && (pitchMarkIndex[tmpInt1] < NBINS2 - 1) && (pitchMarkSharp[tmpInt1] < markSharpThresh) ) //JL&FA
+			tmpInt1++;
+
+			//Verificação das condições	
+			if(tmpInt1 > analPitchMarks) tmpInt1 = analPitchMarks;
+			if(pitchMarkIndex[tmpInt1] > NBINS2 - 1) {	
+				difT0 = 0;				
+				currT0 = 0;
+				prevT0 = 0;
+				currFrameVoiced = 0;
+			}
+			else {
+				firstValidMark = tmpInt1;
+				DBG( if(firstValidMark<0 || firstValidMark >= NBINS2-1 ) printf("erro 18: firstValidMark: %i\n", firstValidMark); )
+				syntPitchMarkIndex[0] = MAX(0, pitchMarkIndex[firstValidMark]); //AJF 16Jun07
+			}
+		}
+		//Frame anterior não vozeada e actual não vozeada -> não é necessário fazer nada. 
+		//Copia-se o bloco da entrada para a saida	
+	}
+
+	//-------------------------------------------------------//
+	//                    Síntese PSOLA                      //
+	//-------------------------------------------------------//
+    tmpInt1 = tmpInt2 = tmpInt3 = 0;
+	syntPitchMarks = 0; // FA
+	if(currFrameVoiced)
+	{
+	    //AJF 16Jun07
+        if(!prevFrameVoiced)
+		{
+		   syntCurrT0 = currT0 * periodShift;
+           syntPrevT0 = syntCurrT0;
+           syntDifT0  = 0.0f;
+		}
+        else
+	    {
+		   syntPrevT0 = prevT0 * periodShift;
+	       syntCurrT0 = currT0 * periodShift;
+	  	   syntDifT0  = difT0 * periodShift;
+	    }     	 
+	    //AJF 16Jun07 end
+		
+		mapPitchMark[0] = 0; // Válido em qualquer caso
+		
+		while(syntPitchMarkIndex[syntPitchMarks] < NBINS2 && syntPitchMarks < NBINS2-1) //FA
+		{	
+			DBG( if(syntPitchMarks==100) printf("syntPitchMarks Error?\n"); ) // FA
+			//---------------------------------------------------//                         
+			//   Passo 1: Cálculo das novas marcas de sintese    //
+			//---------------------------------------------------// 			
+			tmpT0 = (syntPitchMarkIndex[syntPitchMarks]) * syntDifT0 + syntPrevT0; //JM 24Mai07 -> Para ficar de acordo com o Matlab //JLFA
+			syntPitchMarks++;
+
+			//Calcula novas marcas de sintese
+			tmpInt1 = (int)floor(0.5 + (tmpT0) / (1.0 - syntDifT0));
+			
+			if(tmpInt1 < 0.5 * syntCurrT0 || tmpInt1 > 2.0 * syntCurrT0) { //AJF 6Jun07
+				syntPitchMarkIndex[syntPitchMarks] = MIN(NBINS-1, syntPitchMarkIndex[syntPitchMarks-1] + (int)floor(0.5 + syntCurrT0)); //Em caso de convergência difícil
+			}
+			else {
+                syntPitchMarkIndex[syntPitchMarks] = MIN(NBINS - 1, syntPitchMarkIndex[syntPitchMarks-1] + tmpInt1); //Regra de aproximação linear
+			}
+	
+	    DBG(	if(syntPitchMarkIndex[syntPitchMarks]<-NBINS2 || syntPitchMarkIndex[syntPitchMarks]> NBINS-1)
+			printf("erro syntPitchMarkIndex[syntPitchMarks]: %i  syntPitchMarks: %i, currT0: %i, synCurrT0: %i\n",syntPitchMarkIndex[syntPitchMarks],syntPitchMarks, currT0, syntCurrT0); ) // FA
+
+			//--------------------------------------------------------//                         
+			//  Passo 2: Mapeamento dos segmentos a serem deslocados  //
+			//--------------------------------------------------------// 
+			//"tmpInt1" usado para calcular distância de marca de sintese actual à marca de análise + próxima à direita
+			//"tmpInt2" usado para calcular distância de marca de sintese actual à marca de análise + próxima à esquerda
+			//"tmpInt3" usado para pesquisa no vector de marcas de análise
+			while( (tmpInt3 <= analPitchMarks) && (pitchMarkIndex[tmpInt3] < syntPitchMarkIndex[syntPitchMarks]) ){ //JL&FA
+                tmpInt3++;
+			}
+			
+		    //Verificação das condições	
+		    if (tmpInt3 > analPitchMarks) tmpInt3 = analPitchMarks; //Atenção -> representa indices
+            if (tmpInt3 == 0) tmpInt3 = 1; //Por precaução no pitch-up
+		
+			tmpInt1 = abs(pitchMarkIndex[tmpInt3] - syntPitchMarkIndex[syntPitchMarks]);   //AJF 03Jun07 Distância antes
+			tmpInt2 = abs(syntPitchMarkIndex[syntPitchMarks] - pitchMarkIndex[tmpInt3-1]); //AJF 03Jun07 Distância depois
+			if(tmpInt1 < tmpInt2) {
+				mapPitchMark[syntPitchMarks] = tmpInt3;
+			}
+			else {
+				mapPitchMark[syntPitchMarks] = tmpInt3 - 1;
+			}
+		}
+		if( mapPitchMark[syntPitchMarks] < analPitchMarks && pitchMarkIndex[mapPitchMark[syntPitchMarks]] < NBINS2 ){ 
+			mapPitchMark[syntPitchMarks] = mapPitchMark[syntPitchMarks] + 1; //Para garantir que fica à direita de NBINS-1
+		}
+
+		//----------------------------------------//                         
+		//  Passo 3: Frame anterior não vozeada   //
+		//----------------------------------------// 
+		if (!prevFrameVoiced) //Copia porção até à primeira marca de análise na frame actual
+		{
+			//printf("Passo 3: Frame anterior não vozeada\n");
+			
+			PManalRight = syntPitchMarkIndex[0]; 
+			firstPitchSampleIn = PManalRight; 
+
+			for(i = 0; i <= PManalRight; i++) 
+				TimeSynthesisData[NBINS2+i] = TimeAnalysisData[NBINS2+i]; //Porque syntPitchMarIndex está já mapeado em [0:..]
+		
+			TimeSynthesisData[NBINS2+PManalRight] *= 0.5f;
+			
+			//AJF 16Jun07
+			if(firstValidMark < analPitchMarks)
+				rangeOnTheRight = (int)floor(0.5 + (pitchMarkIndex[firstValidMark + 1] - pitchMarkIndex[firstValidMark]));
+			else
+				rangeOnTheRight = (int)floor(0.5 + (pitchMarkIndex[firstValidMark] - pitchMarkIndex[firstValidMark - 1]));
+		}
+		
+		//---------------------------------------------------------//                         
+		//  Passo 4: Processa primeira marca (completa à direita)  //
+		//---------------------------------------------------------// 
+		//"tmpInt1" usado para indexar os segmentos a transladar
+		//"tmpInt2" usado para guardar distância entre marcas		
+		tmpInt1 = mapPitchMark[0];
+		tmpInt2 = MAX(1, (int)floor(0.5 + rangeOnTheRight * pitchRange)); // FA
+			
+		PManalLeft  = firstPitchSampleIn; 
+		PManalRight = MIN(NBINS-1,PManalLeft + (tmpInt2 - 1));
+		PMsyntLeft  = MAX(-NBINS2,MIN(NBINS-1,syntPitchMarkIndex[0]));
+		PMsyntRight = MIN(NBINS-1,PMsyntLeft + (tmpInt2 - 1));
+		tmpInt2 = MIN(NBINS2,MIN(PMsyntRight - PMsyntLeft,PManalRight - PManalLeft) + 1); // FA
+
+DBG(	if(PManalRight<PManalLeft) printf ("erro10.5: PManalRight<PManalLeft\n"); )	// FA
+DBG(	if(PMsyntRight<PMsyntLeft) printf ("erro10.6: PMsyntRight<PMsyntLeft\n"); )	// FA
+		
+		timeWindowCoefNovo = timeWindowArray[tmpInt2]; // FA
+
+		TimeSynthesisData[NBINS2+PMsyntLeft] += 0.5f * TimeAnalysisData[NBINS2+PManalLeft] * timeWindowCoefNovo[0]; // FA
+		for(i = 1; i < tmpInt2; i++) // FA
+			TimeSynthesisData[NBINS2+PMsyntLeft+i] += TimeAnalysisData[NBINS2+PManalLeft+i] * timeWindowCoefNovo[i];
+			
+					//janela = 0.5*(1+cos(pi/range*([0:(range-1)].')));
+					//janela(1) = janela(1) * 0.5; % por causa deste valor ser usado duas vezes		
+					//SynthesisData(N2+[PMsyntLeft:PMsyntRight]) = SynthesisData(N2+[PMsyntLeft:PMsyntRight]) + AnalysisData(N2+[PManalLeft:PManalRight]).*janela;
+
+		//------------------------------------------//                         
+		//  Passo 5: Processa marcas (intermédias)  //
+		//------------------------------------------// 
+		//"tmpInt1" usado para indexar os segmentos a transladar
+		//"tmpInt2" usado para guardar distância entre marcas
+		//"tmpInt3" usado para contar o passo de transladação"		
+		tmpInt3 = 0;
+		for(tmpInt3 = 1; tmpInt3 < syntPitchMarks; tmpInt3++) //Porque queremos todas as marcas de sintese menos a última
+		{
+			tmpInt1 = MIN(NBINS2-1,MAX(1, mapPitchMark[tmpInt3])); //Por precaução no pitch-up
+		
+			//----> Transpõe parte direita da marca de pitch tmpInt1
+			tmpInt2 = 1; // FA
+			if (tmpInt1 >= analPitchMarks) { //-> Note-se aqui analPitchMarks já funciona com indexador
+				tmpInt2  = MAX(1, (int)floor(0.5 + (pitchMarkIndex[analPitchMarks] - pitchMarkIndex[analPitchMarks-1]) * pitchRange)); // FA
+			}
+			else {
+				tmpInt2  = MAX(1, (int)floor(0.5 + (pitchMarkIndex[tmpInt1+1] - pitchMarkIndex[tmpInt1]) * pitchRange)); // FA
+			}
+			PManalLeft  = MAX(-NBINS2,MIN(NBINS-1,pitchMarkIndex[tmpInt1]));
+			PManalRight = MIN(NBINS-1, PManalLeft + (tmpInt2 - 1));
+			PMsyntLeft  = MAX(-NBINS2,MIN(NBINS-1,syntPitchMarkIndex[tmpInt3])); //Indices [1:synPitchMarks-1]
+			PMsyntRight = MIN(NBINS-1,PMsyntLeft + (tmpInt2 - 1));
+			tmpInt2 = MIN(NBINS2,MIN(PMsyntRight - PMsyntLeft,PManalRight - PManalLeft) + 1); // FA
+
+	DBG(	if(PMsyntLeft>PMsyntRight) printf ("erro9.5: %i>%i\n",PMsyntLeft,PMsyntRight); ) // FA
+	DBG(	if(PManalLeft>PManalRight) printf ("erro9.6: %i>%i\n",PManalLeft,PManalRight); ) // FA
+		
+			/* for(i = 0; i < tmpInt2; i++)
+				timeWindowCoef[i] = 0.5f * (1.0f + cos((float)M_PI * (float)i / (float)tmpInt2));
+			timeWindowCoef[0] *= 0.5f; */
+			timeWindowCoefNovo = timeWindowArray[tmpInt2]; // FA
+
+			TimeSynthesisData[NBINS2+PMsyntLeft] += 0.5f * TimeAnalysisData[NBINS2+PManalLeft] * timeWindowCoefNovo[0]; // FA */
+			for(i = 1; i < tmpInt2; i++) // FA
+				TimeSynthesisData[NBINS2+PMsyntLeft+i] += TimeAnalysisData[NBINS2+PManalLeft+i] * timeWindowCoefNovo[i];
+
+				//janela = 0.5*(1+cos(pi/range*([0:(range-1)].')));
+				//janela(1) = janela(1) * 0.5; % por causa deste valor ser usado duas vezes
+				//SynthesisData(N2+[PMsyntLeft:PMsyntRight]) = SynthesisData(N2+[PMsyntLeft:PMsyntRight]) + AnalysisData(N2+[PManalLeft:PManalRight]).*janela;		   
+		
+			//----> Transpõe parte esquerda da marca de pitch "tmpInt1+1"
+			tmpInt2 = 1; // FA
+			tmpInt2 = MAX(1, (int)floor(0.5 + (pitchMarkIndex[tmpInt1] - pitchMarkIndex[tmpInt1-1]) * pitchRange)); // FA
+
+			PManalRight = MAX(-NBINS2,MIN(NBINS-1,pitchMarkIndex[tmpInt1]));
+			PManalLeft  = MAX(-NBINS2,PManalRight - (tmpInt2 - 1));
+			PMsyntRight = MAX(-NBINS2,MIN(NBINS-1,syntPitchMarkIndex[tmpInt3]));
+			PMsyntLeft  = MAX(-NBINS2,PMsyntRight - (tmpInt2 - 1));
+			tmpInt2 = MIN(NBINS2,MIN(PMsyntRight - PMsyntLeft,PManalRight - PManalLeft) + 1); // FA
+
+	DBG(	if(PManalRight<PManalLeft) printf ("erro8.5: PManalRight<PManalLeft\n"); )	// FA
+	DBG(	if(PMsyntRight<PMsyntLeft) printf ("erro8.6: PMsyntRight<PMsyntLeft\n"); )	// FA
+	
+		   
+		   /* for(i = 0; i < tmpInt2; i++)
+				timeWindowCoef[i] = 0.5f * (1.0f + cos((float)M_PI * (float)(tmpInt2 - 1 - i) / (float)tmpInt2));
+		   timeWindowCoef[tmpInt2 - 1] *= 0.5f; */
+			timeWindowCoefNovo = timeWindowArray[tmpInt2]; // FA
+
+			j = tmpInt2-1; // FA
+			for(i = tmpInt2-2; i >= 0; --i) // FA
+				TimeSynthesisData[NBINS2+PMsyntLeft+i] += TimeAnalysisData[NBINS2+PManalLeft+i] * timeWindowCoefNovo[j - i]; // FA
+			TimeSynthesisData[NBINS2+PMsyntLeft+j] += 0.5f * TimeAnalysisData[NBINS2+PManalLeft+j] * timeWindowCoefNovo[0]; // FA
+
+
+					//janela = 0.5*(1+cos(pi/range*([0:(range-1)].')));
+					//janela(1) = janela(1) * 0.5; % por causa deste valor ser usado duas vezes
+					//SynthesisData(N2+[PMsyntLeft:PMsyntRight]) =  SynthesisData(N2+[PMsyntLeft:PMsyntRight]) + AnalysisData(N2+[PManalLeft:PManalRight]).*janela(range:-1:1);		
+		}
+
+		//--------------------------------------------------------//                         
+		//  Passo 6: Processa última marca (completa à esquerda)  //
+		//--------------------------------------------------------// 	
+		//"tmpInt1" usado para indexar os segmentos a transladar
+		//"tmpInt2" usado para guardar distância entre marcas
+		//printf("PSOLA: Processa a ultima marca\n");	
+		
+DBG(	if(mapPitchMark[syntPitchMarks]>NBINS-1 || mapPitchMark[syntPitchMarks] < 0 ) ("erro7.0: %i\n",mapPitchMark[syntPitchMarks]);	) // FA
+		tmpInt1 = mapPitchMark[syntPitchMarks];
+		tmpInt2 = MAX(1, (int)floor(0.5 + (pitchMarkIndex[tmpInt1] - pitchMarkIndex[tmpInt1-1]) * pitchRange));   // FA
+		
+		PManalRight = MAX(-NBINS2,MIN(NBINS-1, pitchMarkIndex[tmpInt1])); // FA
+		PManalLeft  = MAX(-NBINS2,PManalRight - (tmpInt2 - 1));
+		PMsyntRight = MAX(-NBINS2,MIN(NBINS-1,syntPitchMarkIndex[syntPitchMarks]));
+		PMsyntLeft  = MAX(-NBINS2,PMsyntRight - (tmpInt2 - 1));
+		tmpInt2 = MIN(NBINS2,MIN(PMsyntRight - PMsyntLeft,PManalRight - PManalLeft) + 1); // FA
+
+DBG(	if(PMsyntLeft>PMsyntRight) printf ("erro7.5: %i>%i\n",PMsyntLeft,PMsyntRight); ) // FA
+DBG(	if(PManalLeft>PManalRight) printf ("erro7.6: %i>%i\n",PManalLeft,PManalRight); ) // FA
+
+
+		
+		/* for(i = 0; i < tmpInt2; i++)
+			timeWindowCoef[i] = 0.5f * (1.0f + cos((float)M_PI * (float)(tmpInt2 - 1 - i) / (float)tmpInt2));
+		timeWindowCoef[tmpInt2 - 1] *= 0.5f;			
+		for(i = 0; i < tmpInt2; i++)
+			TimeSynthesisData[NBINS2+PMsyntLeft+i] += TimeAnalysisData[NBINS2+PManalLeft+i] * timeWindowCoef[i]; */
+
+		timeWindowCoefNovo = timeWindowArray[tmpInt2]; // FA
+
+		j = tmpInt2-1; // FA
+		for(i = tmpInt2-2; i >= 0; --i) // FA
+			TimeSynthesisData[NBINS2+PMsyntLeft+i] += TimeAnalysisData[NBINS2+PManalLeft+i] * timeWindowCoefNovo[j - i]; // FA
+		TimeSynthesisData[NBINS2+PMsyntLeft+j] += 0.5f * TimeAnalysisData[NBINS2+PManalLeft+j] * timeWindowCoefNovo[0]; // FA
+		
+				//janela = 0.5*(1+cos(pi/range*([0:(range-1)].')))
+				//janela(1) = janela(1) * 0.5;
+				//SynthesisData(N2+[PMsyntLeft:PMsyntRight]) =  SynthesisData(N2+[PMsyntLeft:PMsyntRight]) + AnalysisData(N2+[PManalLeft:PManalRight]).*janela(range:-1:1);	
+	}
+	else
+	{
+		if(prevFrameVoiced) //Frame anterior vozeada e actual não vozeada
+		{	
+		   tmpInt2  = MAX(1, (int)floor(0.5 + rangeOnTheRight * pitchRange)); // FA
+
+			//----> Transpõe parte direita da primeira marca de pitch
+			PManalLeft  = MAX(-NBINS2,MIN(NBINS-1,firstPitchSampleIn)); 
+			PManalRight = MIN(NBINS-1,PManalLeft + (tmpInt2 - 1));
+			PMsyntLeft  = MAX(-NBINS2,MIN(NBINS-1,syntPitchMarkIndex[0]));
+			PMsyntRight = MIN(NBINS-1, PMsyntLeft + (tmpInt2 - 1)); // FA
+			tmpInt2 = MIN(NBINS2,MIN(PMsyntRight - PMsyntLeft,PManalRight - PManalLeft) + 1); // FA
+
+	DBG(	if(PManalRight<PManalLeft) printf ("erro6.5: PManalRight<PManalLeft\n"); )	// FA
+	DBG(	if(PMsyntRight<PMsyntLeft) printf ("erro6.6: PMsyntRight<PMsyntLeft\n"); )	// FA
+
+			/* for(i = 0; i < tmpInt2; i++)
+				timeWindowCoef[i] = 0.5f * (1.0f + cos((float)M_PI * (float)i / (float)tmpInt2));
+			timeWindowCoef[0] *= 0.5f;
+			for(i = 0; i < tmpInt2; i++)
+				TimeSynthesisData[NBINS2+PMsyntLeft+i] += TimeAnalysisData[NBINS2+PManalLeft+i] * timeWindowCoef[i]; */
+
+			timeWindowCoefNovo = timeWindowArray[tmpInt2]; // FA
+
+			TimeSynthesisData[NBINS2+PMsyntLeft] += 0.5f * TimeAnalysisData[NBINS2+PManalLeft] * timeWindowCoefNovo[0]; // FA
+			for(i = 1; i < tmpInt2; i++) // FA
+				TimeSynthesisData[NBINS2+PMsyntLeft+i] += TimeAnalysisData[NBINS2+PManalLeft+i] * timeWindowCoefNovo[i]; // FA
+	
+						//janela = 0.5*(1+cos(pi/tmpInt2*([0:(tmpInt2-1)].')));
+						//janela(1) = janela(1) * 0.5;
+						//SynthesisData(N2+[PMsyntLeft:PMsyntRight]) = SynthesisData(N2+[PMsyntLeft:PMsyntRight]) + AnalysisData(N2+[PManalLeft:PManalRight]).*janela;
+
+			//----> Transição dos dados originais
+			// timeWindowCoef[0] *= 2.0f; //Repoe valor original
+
+			for(i = 0; i < tmpInt2; i++)
+				TimeSynthesisData[NBINS2+PMsyntLeft+i+1] += TimeAnalysisData[NBINS2+PMsyntLeft+i+1] * timeWindowCoefNovo[tmpInt2 - 1 - i];
+
+				//janela(1) = janela(1) * 2.0; % repõe valor original
+				//SynthesisData(1+N2+[PMsyntLeft:PMsyntRight]) = SynthesisData(1+N2+[PMsyntLeft:PMsyntRight]) + AnalysisData(1+N2+[PMsyntLeft:PMsyntRight]).*janela(tmpInt2:-1:1);
+
+			//----> Copia resto dos dados originais
+			for(i = NBINS2+PMsyntRight+2; i < NBINS; i++){
+				TimeSynthesisData[i] = TimeAnalysisData[i];
+			}
+			//SynthesisData(2+N2+PMsyntRight:N) = AnalysisData(2+N2+PMsyntRight:N);
+		}
+		else //Frame anterior e actual não vozeadas -> Copia directamente dados de entrada para a saida
+		{
+			for(i = NBINS2; i < NBINS; i++)
+				TimeSynthesisData[i] = TimeAnalysisData[i];
+		}
+	}
+	
+	//---------------------------------------------//
+	//  Actualização de info para a próxima frame  //
+	//---------------------------------------------//	
+	if (currFrameVoiced)
+	{
+		//Actualiza marca de sincronização (pode ser necessária para a frame seguinte)
+		
+DBG(	if(syntPitchMarks < 0 || syntPitchMarks>NBINS2-1) printf("erro05: %i\n",syntPitchMarks); ) // FA
+DBG(	if(mapPitchMark[syntPitchMarks]<0 || mapPitchMark[syntPitchMarks]>NBINS-1) printf("erro02: %i\n",mapPitchMark[syntPitchMarks]); ) // FA				
+				
+	    firstPitchSampleIn = pitchMarkIndex[mapPitchMark[syntPitchMarks]] - NBINS2;
+		
+DBG(	if(firstPitchSampleIn < 0 || firstPitchSampleIn>NBINS2-1) 
+		{ 
+			printf("erro17: firstPitchSampleIn: %i, mapPitchMark[syntPitchMarks]: %i, syntPitchMarks: %i\n", firstPitchSampleIn,mapPitchMark[syntPitchMarks],syntPitchMarks); // FA			
+			printf("currT0: %i", currT0);
+			printf("Frame actual vozeada|Frame anterior vozeada: %i|%i\n,", currFrameVoiced, prevFrameVoiced);
+			printf("pitchMarkIndex: ");
+			for(i = 0; i <= analPitchMarks + 1; i++)
+				printf(" %i ", pitchMarkIndex[i]);
+			printf("\nmapPitchMark: ");
+			for(i = 0; i <= syntPitchMarks + 1; i++)
+				printf(" %i ", mapPitchMark[i]);
+			printf("---------\n");
+		}
+	)
+//         while(firstPitchSampleIn > -NBINS && firstPitchSampleIn < 0 && currT0>0) firstPitchSampleIn += currT0; //FA 01Jun07
+//		 firstPitchSampleIn = MAX(0,MIN(NBINS2-1,firstPitchSampleIn)); // FA
+//		
+//DBG(	if(firstPitchSampleIn < 0 || firstPitchSampleIn>NBINS2-1) printf("erro20: firstPitchSampleIn: %i syntPitchMarks: %i\n", firstPitchSampleIn, syntPitchMarks); ) // FA
+//		while(firstPitchSampleIn > -NBINS && firstPitchSampleIn < 0 && currT0>0) firstPitchSampleIn += currT0; //FA 01Jun07
+//		firstPitchSampleIn = MAX(0,MIN(NBINS2-1,firstPitchSampleIn)); // FA
+//		
+		
+	    syntFirstPitchSampleIn = syntPitchMarkIndex[syntPitchMarks] - NBINS2;
+DBG(	if(syntFirstPitchSampleIn < 0 || syntFirstPitchSampleIn>NBINS2-1) // FA
+			printf("erro22: syntFirstPitchSampleIn: %i syntPitchMarks: %i\n", syntFirstPitchSampleIn,syntPitchMarks); ) // FA
+		
+		//Actualiza periodo de transição entre frames na análise
+		tmpInt1 = mapPitchMark[syntPitchMarks];
+		
+		if (tmpInt1 + 1 > analPitchMarks) //FA
+			tmpInt1--;
+		//while (tmpInt1 >= analPitchMarks) 
+		//	tmpInt1--;
+		
+DBG(	if(tmpInt1<0 || tmpInt1>511) printf("erro02: %i\n",tmpInt1); ) // FA		
+		
+		rangeOnTheRight = (int)floor(0.5 + (pitchMarkIndex[tmpInt1+1] - pitchMarkIndex[tmpInt1])); 
+	    prevOffset = firstPitchSampleIn; //JL
+		//printf("%d\n",firstPitchSampleIn);
+	}
+	//printf("PrevOffset: %i\n", prevOffset);
+	prevFrameVoiced = currFrameVoiced;
+    prevT0 = currT0;
+	//printf("V prevT0: %d\n",prevT0);
+
+			
+	        //for(i = 0; i <= syntPitchMarks; i++) {
+			//	printf("Marca de sintese: %i, Segmento: %i\n", syntPitchMarkIndex[i], mapPitchMark[i]); }
+			//printf("Numero de marcas de sintese %i\n", syntPitchMarks + 1);
+
+
+
+	//------------------------------------------//
+	//     Actualização do histórico de T0      // JM 15Mai07 -> (ok)
+	//------------------------------------------//	
+    tmpInt1 = numPrevT0 - 1;
+	for(i = 0; i < tmpInt1; i++)
+		prevT0Vector[i] = prevT0Vector[i+1];      //"Shift left"
+	prevT0Vector[tmpInt1] = currT0;               //Último indice é o T0 mais recente
+    //printf("%i, %i\n", tmpInt1, numPrevT0);
+
+	
+	//printf("Producao do buffer de saida\n");
+	//------------------------------------------//
+	//      Produção do buffer de saida         // JM 21Mai07 -> (ok)
+	//------------------------------------------//	
+	for(i = 0; i < NBINS2; i++) {
+		tmpFloat1 = TimeSynthesisData[NBINS2+i];
+		if(tmpFloat1 > 0.85f)       outdata[i] =  0.85f;
+		else if(tmpFloat1 < -0.85f) outdata[i] = -0.85f;
+		else                        outdata[i] = tmpFloat1;
+	}
+
+}
+
+float tpitchshiftorig::calcSum(float *vector, int infIndex, int supIndex) //JM 15Mai07 -> (ok)
+{
+	int k;		
+	float result = 0.0f;
+	for(k = infIndex; k <= supIndex; k++) //Calcula o somatório
+		result += vector[k];
+	return result;
+}
+
+void tpitchshiftorig::calcMax(float *vector, int supIndex, int infIndex, int *maxIndex, float *maxValue) //JM 16Mai07 -> (ok)
+{
+	int k;		
+	float tmp1, tmp2; 
+	tmp1 = 0.0f; tmp2 = vector[infIndex];
+	for(k = infIndex; k <= supIndex; k++) {
+		tmp1 = vector[k];
+		if(tmp1 > tmp2) {
+			*maxIndex = k;
+			*maxValue = tmp1;
+			tmp2 = tmp1;
+		}
+	}
+}
+
+void tpitchshiftorig::calcMin(float *vector, int supIndex, int infIndex, int *minIndex, float *minValue)
+{
+	int k;
+	float tmp1, tmp2;	
+	tmp1 = 0.0f; tmp2 = vector[infIndex];
+	for(k = infIndex; k <= supIndex; k++) {
+		tmp1 = vector[k];
+		if(tmp1 < tmp2) {
+			*minIndex = k;
+			*minValue = tmp1;
+			tmp2 = tmp1;
+		}
+	}
+}
+
+inline int tpitchshiftorig::fix(float a) {
+	return a < 0 ? -(int)(-a) : (int)(a);
+}

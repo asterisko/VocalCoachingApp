@@ -1,0 +1,121 @@
+#ifndef _STATSEG_H
+#define _STATSEG_H
+
+#include <math.h>
+#include <string.h>
+#include "complex.h"
+#include "segment.h"
+
+
+class TRANSFORM;
+class WINDOW;
+
+class STATSEG : public SEGMENT
+{
+	int nshort, *asrliv, nharmonicstructures;
+	double *daddsamp, *overlap, *recoeftf, *imcoeftf;
+	double *tntyhz, *unqzcoef;
+	double *magni, *phase, *cepstrum, *logmag, *energy;
+    double framePower, framePower_dB;
+	complex *coeftf, *lcoef, *scoef, *flatcoef, *syntcoef, *asrbwe;
+	double *rlcoef, *rscoef, *tmpdbl;
+	double *asrphi, *asrmag, *asroldphi, *asroldmag;
+	double pastF0[8], noisefloor;	// noisefloor added at 4 Dez 07
+	int npastF0; // NOTE: must be <= 8
+
+	struct harmonicinfo // see pag 520 Bjarne
+	{
+		int nharmonic;
+		int npause;
+		int pospause;
+		double f0harmonic;
+		double accpower;
+		double phiharmonic[128];
+		double magharmonic[128];
+	};
+	harmonicinfo harmonicstructure[8];
+
+	struct // see pag 520 Bjarne
+	{
+		int ntonal;               // maximum value is 8 !
+		double f0tonal[8];
+		double phitonal[8];
+		double magtonal[8];
+	} tonalsinfo; // AJF 30DEC06
+
+	//JM 25Mai07
+	int nCa;
+	double *myPower;
+	double *myPowerdB;
+	double *myCepstrumEst;
+	double *myCepstrumMag;
+	float value;
+	//
+
+public:
+	STATSEG();
+	STATSEG(int);
+	~STATSEG();
+
+	STATSEG& operator=(const STATSEG&);
+	STATSEG& operator=(const SEGMENT&);
+    
+    
+    // ANDRE
+    double getFramePower_dB() const { return framePower_dB; };
+
+	//JM 25Mai07
+	int getNumCandidates() const { return nCa; };
+	double* getPower() const { return myPower; };
+	double* getPowerdB() const { return myPowerdB; };
+	double* getMagnitude() const { return myCepstrumMag; };
+	double* getEstimate() const { return myCepstrumEst; };
+	void setValue(float value);
+	//
+
+	// FA
+	double* get_recoeftf() const { return recoeftf; };
+	double *get_imcoeftf() const { return imcoeftf; }
+	double *getPhase() { transphi(); return daddsamp; };
+	void getfloatNorm(float* input);
+
+	void loaddoubledir(int);
+	void storedoubledir(int);
+	void loaddoubleinv(int);
+	void storedoubleinv(int);
+	//void getdouble();
+	void getdouble(double*);
+	void getcomplex();
+	void putinteger();
+	void putdouble();
+	void transmag(int);
+	void transphi();
+	void searchtonalAnalysis(TRANSFORM&, TRFTYPE, statframe&, float, float, int);
+	void compressresidual(statframe&);
+	void quantize(statframe&);
+	void dircepstrum(TRANSFORM& , TRFTYPE, statframe&);
+	void invcepstrum(TRANSFORM& , TRFTYPE, statframe&);
+	void flatten(TRANSFORM& , statframe&);
+	int  synttonal(statframe&);
+	void resettonal();
+	void calcresidual(TRANSFORM&);
+
+	int castint(double);
+	signed char castchar(double);
+	short int castshort(double);
+
+	void dirsegtrans(TRANSFORM&, WINDOW&, TRFTYPE , WSWITCH);
+	// long int dirqzf0_12(float);
+	// float invqzf0_12(long int);
+	// long int dirqzf0_16(float);
+	// float invqzf0_16(long int);
+	//  float compress(const float&);
+	//   float expand(const float&);
+	//  void shortsmr(statframe&);
+	float exactdeltaell(const float&, const float&, const float&);
+	//   void syntpartial(const float&, const int&, const float&, const float&, complex*);
+	//   double mainarg(const double&);
+
+};
+
+#endif

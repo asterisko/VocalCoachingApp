@@ -1,0 +1,1 @@
+call %SVN_STATIC%\_include\commonBatch\ResetLibVersion.bat
