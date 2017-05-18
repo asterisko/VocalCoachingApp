@@ -19,7 +19,7 @@ ssComputeMidiNotes :: ssComputeMidiNotes(PitchMeter * _pitchMeter ) {
     if (myApp->dbgMode) cout << "creating ssComputeMidiNotes" << endl;
     
     pitchMeter = _pitchMeter;
-    midiFile = new ssMidiFileIO();
+//    midiFile = new ssMidiFileIO();
     
     // Generate a Midi file for each existent Wav File
 //    midiFile->createMidiFileForExistentWavFiles();
@@ -37,7 +37,7 @@ ssComputeMidiNotes :: ~ssComputeMidiNotes () {
     midiNoteData.clear();
     
     pitchMeter = NULL;
-    delete midiFile;
+//    delete midiFile;
 }
 
 
@@ -84,7 +84,7 @@ void ssComputeMidiNotes::processNotes(void) {
             }
     }
     
-    midiFile->saveMidiFile(myApp->recFileName);
+//    midiFile->saveMidiFile(myApp->recFileName);
 }
 
 ///////////////////////////////////////////////////////////

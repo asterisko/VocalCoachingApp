@@ -22,6 +22,8 @@ public:
     
     int     previousSizePowerVector = 0;
     
+    int *dotsMatrix = (int *) calloc(N_ROWS*N_COLS, sizeof(int));
+    
     ofMutex mutex;
 
     float   xpos_percent[12];
@@ -51,36 +53,22 @@ public:
     ~ssPianoKeyboard();
     
     void init(float _xi, float _yi, float _w, float _h);
-    void setKeyboardPosition(float _xi,float _yi);
-    void setKeyboardPositionY(float _yi);
     void addKeyboard(void);
 
     void initGLPianoRollData();
-    //void initGLPitchPlotData();
     
-    //void rephreshGLPitchNotesData();
     void rephreshGLPianoRollData();
-    void rephreshGLPitchPlotData();
     
-    void OLD__drawKeyboardAndPianoRoll(float xiPitchPlot, float widthPitchPlot);
     void drawKeyboardAndPianoRoll_Optimized(float xiPitchPlot, float widthPitchPlot);
     
-    void OLD__drawPitchNotes();
-    //void drawPitchNotes_Optimized();
-    
-    void OLD__drawPitchPlot();
-    void drawPitchPlot_Optimized();
-    void drawPitchPlot_RT();
-    void drawPitchPlot2();
-    
     // ANDRE PLOT
-    void drawPitchPowerPlot();
-    void drawFullPitchPowerPlot();
-    void drawPowerLines();
+    void drawPitchPowerPlot();      // Draws dots with fading in real time, saves them to a matrix
+    void drawRegionsPlot();         // Draws regions according to the occurrence of the dots (Only after clicking STOP)
+    void drawFullPitchPowerPlot();  // Draws all the dots (NOT EFFICIENT IN TERMS OF MEMMORY AND CPU USAGE) (Only after clicking STOP)
+    void drawPowerLines();          // Marks the lines that indicate the power in dB
+    void printMatrix();
 
-    void rephreshGLPitchPlot_RT();
-
-    void drawVerticalTimeLines();
+//    void drawVerticalTimeLines();
    
     void copyData2FileBuffer(void);
     void rephreshGLFileBufferData(void);
@@ -96,12 +84,12 @@ public:
     void update();	// called every frame to update object
     void draw();	// called every frame to draw object
     
-    float dist_y_old=0.0;
-    void  moveY_pplot (float diff_y);
-    void  zoomY_pplot_old (float dist_y);
-    void  zoomY_pplot (void);
+//    float dist_y_old=0.0;
+//    void  moveY_pplot (float diff_y);
+//    void  zoomY_pplot_old (float dist_y);
+//    void  zoomY_pplot (void);
 
-    string formatTimeMMSS(float durationInSec);
+//    string formatTimeMMSS(float durationInSec);
 
         
     // GL Optimization
@@ -110,24 +98,6 @@ public:
     vector<ofVec2f>         v_pr;
     vector<ofFloatColor>    c_pr;
     int                     VBO_pr_size;
-
-    ofVbo                   VBO_pitchNotes;
-    vector<ofIndexType>     ind_pn;
-    vector<ofVec2f>         v_pn;
-    vector<ofFloatColor>    c_pn;
-    int                     VBO_pn_size;
-
-    ofVbo                   VBO_pitchPlot;
-    vector<ofIndexType>     ind_pp;
-    vector<ofVec2f>         v_pp;
-    vector<ofFloatColor>    c_pp;
-    int                     VBO_pp_size;
-
-    ofVbo                   VBO_pitchPlot_RT;
-    vector<ofIndexType>     ind_pp_rt;
-    vector<ofVec2f>         v_pp_rt;
-    vector<ofFloatColor>    c_pp_rt;
-    int                     VBO_pp_size_rt;
     
     ofVbo                   VBO_fileBuffer;
     vector<ofIndexType>     ind_fb;

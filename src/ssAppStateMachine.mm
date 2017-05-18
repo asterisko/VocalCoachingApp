@@ -177,34 +177,34 @@ void ssAppStateMachine :: update(void) {
 }
 
 
-void ssAppStateMachine::savePlayingContext(void)
-{
-    FRAME.Begin  = FRAME.Start;
-    FRAME.End    = FRAME.Stop;
-    
-}
-
-void ssAppStateMachine::restorePlayingContext(void)
-{
-    FRAME.Start = FRAME.Begin;
-    FRAME.Stop = FRAME.End;
-    
-    myApp->ssGui->zoom_sliderH->setValueLow(convFram2Sec(FRAME.Start));
-    myApp->ssGui->zoom_sliderH->setValueHigh(convFram2Sec(FRAME.Stop));
-    
-    myApp->ssGui->updatePlotsData(convFram2Sec(FRAME.Start), convFram2Sec(FRAME.Stop));
-
-}
-
-void ssAppStateMachine::showAlertAndRecordFile(void)
-{
-    // ofxiPhoneAlertView //
-    // setup the list of buttons
-    vector<string> otherButtons;
-    // the args are: title, message, cancel button title ("" == omitted), vector of other button titles
-    alert = new ofxiPhoneAlertView("","You must enter a filename: ","OK",otherButtons);
-    // display the alert view
-    alert->show();
-    // end of alert view setup
-}
+//void ssAppStateMachine::savePlayingContext(void)
+//{
+//    FRAME.Begin  = FRAME.Start;
+//    FRAME.End    = FRAME.Stop;
+//    
+//}
+//
+//void ssAppStateMachine::restorePlayingContext(void)
+//{
+//    FRAME.Start = FRAME.Begin;
+//    FRAME.Stop = FRAME.End;
+//    
+//    myApp->ssGui->zoom_sliderH->setValueLow(convFram2Sec(FRAME.Start));
+//    myApp->ssGui->zoom_sliderH->setValueHigh(convFram2Sec(FRAME.Stop));
+//    
+//    myApp->ssGui->updatePlotsData(convFram2Sec(FRAME.Start), convFram2Sec(FRAME.Stop));
+//
+//}
+//
+//void ssAppStateMachine::showAlertAndRecordFile(void)
+//{
+//    // ofxiPhoneAlertView //
+//    // setup the list of buttons
+//    vector<string> otherButtons;
+//    // the args are: title, message, cancel button title ("" == omitted), vector of other button titles
+//    alert = new ofxiPhoneAlertView("","You must enter a filename: ","OK",otherButtons);
+//    // display the alert view
+//    alert->show();
+//    // end of alert view setup
+//}
 

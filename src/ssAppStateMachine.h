@@ -43,8 +43,8 @@ public:
     
     void setNewExecState(EXEC_STATE _state);
     void update(void);
-    void savePlayingContext(void);
-    void restorePlayingContext(void);
-    void showAlertAndRecordFile(void);
+//    void savePlayingContext(void);
+//    void restorePlayingContext(void);
+//    void showAlertAndRecordFile(void);
 
 };

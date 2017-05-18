@@ -124,15 +124,15 @@ string ofxiPhoneAlertView::getTitle(){
 }
 */
 // Called when a button is clicked. The view will be automatically dismissed after this call returns
-- (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex
-{
-    selectedButton = buttonIndex;
-    dismissed = true;
-    NSLog(@"\n Selected button: %d",selectedButton);
-    NSLog(@"\n Filename : %@",[[alertView textFieldAtIndex:0] text]);
-    string filename = ofxNSStringToString([[alertView textFieldAtIndex:0] text]);
-    myApp->recordWAVfile(filename);
-}
+//- (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex
+//{
+//    selectedButton = buttonIndex;
+//    dismissed = true;
+//    NSLog(@"\n Selected button: %d",selectedButton);
+//    NSLog(@"\n Filename : %@",[[alertView textFieldAtIndex:0] text]);
+//    string filename = ofxNSStringToString([[alertView textFieldAtIndex:0] text]);
+//    myApp->recordWAVfile(filename);
+//}
 
 /*
 // Called when we cancel a view (eg. the user clicks the Home button). This is not called when the user clicks the cancel button.

@@ -212,14 +212,14 @@ void ssGUI::updateTplotBuffer(TmpFile *tmpFile,int posicao, int tamanho)
     delete[] aux; // Free memory to prevent disastrous memory allocation
 }
 
-void ssGUI::rephreshGLData(void){
-    
-    piano->rephreshGLPianoRollData();
-    if (myApp->appWorkingMode==PLAY_MODE) {
-//        piano->rephreshGLPitchNotesData();
-        piano->rephreshGLPitchPlotData();
-        }
-}
+//void ssGUI::rephreshGLData(void){
+//    
+//    piano->rephreshGLPianoRollData();
+//    if (myApp->appWorkingMode==PLAY_MODE) {
+////        piano->rephreshGLPitchNotesData();
+//        piano->rephreshGLPitchPlotData();
+//        }
+//}
 
 
 ///////////////////////////////////////////////////////////

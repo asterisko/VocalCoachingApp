@@ -62,7 +62,7 @@ void ssDragGestureRecognizer :: update (ofTouchEventArgs & touch) {
                 myApp->ssGui->moveX_tplot(diff_x);
 
                 float diff_y    = touch.y - touch1.y;        // Computes differential change in y
-                myApp->ssGui->piano->moveY_pplot(diff_y);
+//                myApp->ssGui->piano->moveY_pplot(diff_y);
                 }
             touch1 = touch;
             }

@@ -16,7 +16,6 @@
 		09543FB81E71A0DB008A4B72 /* ssApp.mm in Sources */ = {isa = PBXBuildFile; fileRef = 09543FAD1E71A0DB008A4B72 /* ssApp.mm */; };
 		09543FB91E71A0DB008A4B72 /* ssAppStateMachine.mm in Sources */ = {isa = PBXBuildFile; fileRef = 09543FAF1E71A0DB008A4B72 /* ssAppStateMachine.mm */; };
 		09543FBA1E71A0DB008A4B72 /* ssGlobals.mm in Sources */ = {isa = PBXBuildFile; fileRef = 09543FB11E71A0DB008A4B72 /* ssGlobals.mm */; };
-		09543FBB1E71A0DB008A4B72 /* ssLoadFileThread.mm in Sources */ = {isa = PBXBuildFile; fileRef = 09543FB31E71A0DB008A4B72 /* ssLoadFileThread.mm */; };
 		09543FBC1E71A0DB008A4B72 /* ssPitchMeterWrapper.mm in Sources */ = {isa = PBXBuildFile; fileRef = 09543FB51E71A0DB008A4B72 /* ssPitchMeterWrapper.mm */; };
 		09543FBD1E71A0DB008A4B72 /* ssStatsFilter.mm in Sources */ = {isa = PBXBuildFile; fileRef = 09543FB71E71A0DB008A4B72 /* ssStatsFilter.mm */; };
 		09543FC11E71A10C008A4B72 /* ofxiPhoneAlertView.mm in Sources */ = {isa = PBXBuildFile; fileRef = 09543FC01E71A10C008A4B72 /* ofxiPhoneAlertView.mm */; };
@@ -24,7 +23,6 @@
 		09543FD11E71A126008A4B72 /* ssWavIO.mm in Sources */ = {isa = PBXBuildFile; fileRef = 09543FC61E71A126008A4B72 /* ssWavIO.mm */; };
 		09543FD21E71A126008A4B72 /* ssComputeMidiNotes.mm in Sources */ = {isa = PBXBuildFile; fileRef = 09543FC91E71A126008A4B72 /* ssComputeMidiNotes.mm */; };
 		09543FD31E71A126008A4B72 /* ssCoreMidiWrapper.mm in Sources */ = {isa = PBXBuildFile; fileRef = 09543FCB1E71A126008A4B72 /* ssCoreMidiWrapper.mm */; };
-		09543FD41E71A126008A4B72 /* ssMidiFileIO.mm in Sources */ = {isa = PBXBuildFile; fileRef = 09543FCD1E71A126008A4B72 /* ssMidiFileIO.mm */; };
 		09543FD51E71A126008A4B72 /* ssMidiThread.mm in Sources */ = {isa = PBXBuildFile; fileRef = 09543FCF1E71A126008A4B72 /* ssMidiThread.mm */; };
 		09543FF81E71A189008A4B72 /* MidiApp.mm in Sources */ = {isa = PBXBuildFile; fileRef = 09543FD81E71A189008A4B72 /* MidiApp.mm */; };
 		095440021E71A189008A4B72 /* ssDragGestureRecognizer.mm in Sources */ = {isa = PBXBuildFile; fileRef = 09543FEE1E71A189008A4B72 /* ssDragGestureRecognizer.mm */; };
@@ -116,8 +114,6 @@
 		09543FAF1E71A0DB008A4B72 /* ssAppStateMachine.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = ssAppStateMachine.mm; sourceTree = "<group>"; };
 		09543FB01E71A0DB008A4B72 /* ssGlobals.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ssGlobals.h; sourceTree = "<group>"; };
 		09543FB11E71A0DB008A4B72 /* ssGlobals.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = ssGlobals.mm; sourceTree = "<group>"; };
-		09543FB21E71A0DB008A4B72 /* ssLoadFileThread.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ssLoadFileThread.h; sourceTree = "<group>"; };
-		09543FB31E71A0DB008A4B72 /* ssLoadFileThread.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = ssLoadFileThread.mm; sourceTree = "<group>"; };
 		09543FB41E71A0DB008A4B72 /* ssPitchMeterWrapper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ssPitchMeterWrapper.h; sourceTree = "<group>"; };
 		09543FB51E71A0DB008A4B72 /* ssPitchMeterWrapper.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = ssPitchMeterWrapper.mm; sourceTree = "<group>"; };
 		09543FB61E71A0DB008A4B72 /* ssStatsFilter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ssStatsFilter.h; sourceTree = "<group>"; };
@@ -132,8 +128,6 @@
 		09543FC91E71A126008A4B72 /* ssComputeMidiNotes.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = ssComputeMidiNotes.mm; sourceTree = "<group>"; };
 		09543FCA1E71A126008A4B72 /* ssCoreMidiWrapper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ssCoreMidiWrapper.h; sourceTree = "<group>"; };
 		09543FCB1E71A126008A4B72 /* ssCoreMidiWrapper.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = ssCoreMidiWrapper.mm; sourceTree = "<group>"; };
-		09543FCC1E71A126008A4B72 /* ssMidiFileIO.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ssMidiFileIO.h; sourceTree = "<group>"; };
-		09543FCD1E71A126008A4B72 /* ssMidiFileIO.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = ssMidiFileIO.mm; sourceTree = "<group>"; };
 		09543FCE1E71A126008A4B72 /* ssMidiThread.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ssMidiThread.h; sourceTree = "<group>"; };
 		09543FCF1E71A126008A4B72 /* ssMidiThread.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = ssMidiThread.mm; sourceTree = "<group>"; };
 		09543FD71E71A189008A4B72 /* MidiApp.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MidiApp.h; sourceTree = "<group>"; };
@@ -345,8 +339,6 @@
 				09543FC91E71A126008A4B72 /* ssComputeMidiNotes.mm */,
 				09543FCA1E71A126008A4B72 /* ssCoreMidiWrapper.h */,
 				09543FCB1E71A126008A4B72 /* ssCoreMidiWrapper.mm */,
-				09543FCC1E71A126008A4B72 /* ssMidiFileIO.h */,
-				09543FCD1E71A126008A4B72 /* ssMidiFileIO.mm */,
 				09543FCE1E71A126008A4B72 /* ssMidiThread.h */,
 				09543FCF1E71A126008A4B72 /* ssMidiThread.mm */,
 			);
@@ -641,8 +633,6 @@
 				09543FAF1E71A0DB008A4B72 /* ssAppStateMachine.mm */,
 				09543FB01E71A0DB008A4B72 /* ssGlobals.h */,
 				09543FB11E71A0DB008A4B72 /* ssGlobals.mm */,
-				09543FB21E71A0DB008A4B72 /* ssLoadFileThread.h */,
-				09543FB31E71A0DB008A4B72 /* ssLoadFileThread.mm */,
 				09543FB41E71A0DB008A4B72 /* ssPitchMeterWrapper.h */,
 				09543FB51E71A0DB008A4B72 /* ssPitchMeterWrapper.mm */,
 				09543FB61E71A0DB008A4B72 /* ssStatsFilter.h */,
@@ -826,7 +816,6 @@
 				09543FD11E71A126008A4B72 /* ssWavIO.mm in Sources */,
 				0965A6651E8E668A001E18DA /* vcAppViewController.mm in Sources */,
 				09543FBC1E71A0DB008A4B72 /* ssPitchMeterWrapper.mm in Sources */,
-				09543FBB1E71A0DB008A4B72 /* ssLoadFileThread.mm in Sources */,
 				09543FA41E719F5A008A4B72 /* ofTapGestureRecognizer.m in Sources */,
 				095440041E71A189008A4B72 /* ssPianoKey.mm in Sources */,
 				095440271E71A81A008A4B72 /* PitchMeter.cpp in Sources */,
@@ -834,7 +823,6 @@
 				0965A6681E8E6772001E18DA /* vcAppDelegate.mm in Sources */,
 				09543FD31E71A126008A4B72 /* ssCoreMidiWrapper.mm in Sources */,
 				0954402C1E71A81A008A4B72 /* window.cpp in Sources */,
-				09543FD41E71A126008A4B72 /* ssMidiFileIO.mm in Sources */,
 				095440051E71A189008A4B72 /* ssPianoKeyboard.mm in Sources */,
 				095444861E71B26C008A4B72 /* ofxUITabbedCanvas.cpp in Sources */,
 				09543FBD1E71A0DB008A4B72 /* ssStatsFilter.mm in Sources */,

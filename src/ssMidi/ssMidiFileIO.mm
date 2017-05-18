@@ -202,37 +202,37 @@ vector<char> ssMidiFileIO::computeMidiDeltaTime(long Nticks, long ticksPerBeat) 
     return H;
 }
 
-void ssMidiFileIO::createMidiFileForExistentWavFiles(void) {
-    
-    ofDirectory *dirWav,*dirMidi;
-    dirWav = new ofDirectory(ofxiPhoneGetDocumentsDirectory());
-    dirWav->allowExt("wav");
-    dirWav->sort();
-    dirWav->listDir();
-    bool midiAlreadyExists=false;
-    string fileNameWav,fileNameMidi;
-    for (int i = 0; i < dirWav->numFiles(); i++)
-    {
-        fileNameWav = ofSplitString(dirWav->getName(i),".wav")[0];
-        dirMidi = new ofDirectory(ofxiPhoneGetDocumentsDirectory());
-        dirMidi->allowExt("mid");
-        dirMidi->sort();
-        dirMidi->listDir();
-        // check if correspondent midi file exists
-        for (int j = 0; j <  dirMidi->numFiles(); j++)
-        {
-            fileNameMidi = ofSplitString(dirMidi->getName(j),".mid")[0];
-            if (fileNameWav==fileNameMidi){
-                midiAlreadyExists = true;
-                break;
-            }
-        }
-        if (!midiAlreadyExists)
-        {
-            myApp->loadWAVfile (fileNameWav);
-            saveMidiFile(fileNameWav);
-            midiAlreadyExists = false;
-        }
-        delete dirMidi;
-    }
-}
+//void ssMidiFileIO::createMidiFileForExistentWavFiles(void) {
+//    
+//    ofDirectory *dirWav,*dirMidi;
+//    dirWav = new ofDirectory(ofxiPhoneGetDocumentsDirectory());
+//    dirWav->allowExt("wav");
+//    dirWav->sort();
+//    dirWav->listDir();
+//    bool midiAlreadyExists=false;
+//    string fileNameWav,fileNameMidi;
+//    for (int i = 0; i < dirWav->numFiles(); i++)
+//    {
+//        fileNameWav = ofSplitString(dirWav->getName(i),".wav")[0];
+//        dirMidi = new ofDirectory(ofxiPhoneGetDocumentsDirectory());
+//        dirMidi->allowExt("mid");
+//        dirMidi->sort();
+//        dirMidi->listDir();
+//        // check if correspondent midi file exists
+//        for (int j = 0; j <  dirMidi->numFiles(); j++)
+//        {
+//            fileNameMidi = ofSplitString(dirMidi->getName(j),".mid")[0];
+//            if (fileNameWav==fileNameMidi){
+//                midiAlreadyExists = true;
+//                break;
+//            }
+//        }
+//        if (!midiAlreadyExists)
+//        {
+//            myApp->loadWAVfile (fileNameWav);
+//            saveMidiFile(fileNameWav);
+//            midiAlreadyExists = false;
+//        }
+//        delete dirMidi;
+//    }
+//}

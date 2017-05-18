@@ -166,22 +166,22 @@ void ssApp::setup(){
     
 //    bkg.loadImage("DSGNbkg.png");
     
-    bkg.loadImage("/Users/vocalcoach/Documents/OpenFrameworks/of_v0.9.8_ios_release_WORKING VERSION_modificada/apps/myApps/SingingStudio_01_05/Resources/bin/data/DSGNbkg.png"); // PROBLEMA
+    bkg.loadImage("/Users/vocalcoach/Documents/OpenFrameworks/of_v0.9.8_ios_release_WORKING VERSION_modificada/apps/myApps/SingingStudio_16_05/Resources/bin/data/DSGNbkg.png"); // PROBLEMA
     
     cout << appWorkingMode << endl;
     
     
     // Start App with File loaded
-    if (appWorkingMode==PLAY_MODE)
-        {
-        //ssGui->btn_record->setVisible(false);
-        if (dbgMode) cout << "Opening Filename: " << loadFileName + ".wav"<< endl;
-        
-        // start the thread
-        //loadFileThread.startThread(false, false);    // blocking, non verbose
-        loadWAVfile(loadFileName);
-        fileIsLoaded=true;
-        }
+//    if (appWorkingMode==PLAY_MODE)
+//        {
+//        //ssGui->btn_record->setVisible(false);
+//        if (dbgMode) cout << "Opening Filename: " << loadFileName + ".wav"<< endl;
+//        
+//        // start the thread
+//        //loadFileThread.startThread(false, false);    // blocking, non verbose
+//        loadWAVfile(loadFileName);
+//        fileIsLoaded=true;
+//        }
 
     ofEnableSmoothing();
     ofEnableAlphaBlending();
@@ -352,97 +352,97 @@ void ssApp::deviceOrientationChanged(int newOrientation){
 
 }
 
-//--------------------------------------------------------------
-void ssApp::loadWAVfile(string filename){
-    
-    if (dbgMode) cout<<"in loadWAVfile method"<<endl;
-    
-  //  ofEvents().disable();
-    
-        delete wavFile;
-        wavFile = new ssWavIO();
-        wavFile->setPath(ofxiPhoneGetDocumentsDirectory()+filename + ".wav");
-        wavFile->read();
-    
-        sampleRate = wavFile->getSampleRate();
-    
-        // Write Wav Data in TempFile
-        //tmpFile->~TmpFile();       // Remove Old TmpFile Object
-        delete tmpFile;
-        tmpFile = new TmpFile("SingingStudioTime");   // Create New TmpFile Object
-        tmpFile->writeBlock(wavFile->myFloatData, 0, wavFile->getLengthInSamples());
-
-        delete pitchMeterWrapper;
-        pitchMeterWrapper = new ssPitchMeterWrapper(num_2bins,num_bins,sampleRate,bufferSize);
-
-        // Points to the begining of the Loaded file
-        appStateMachine->FRAME.Playing = 0;     // in Frames -> Frame 0 points to the beggining of the file
-        appStateMachine->FRAME.Start   = 0;       // in Frames -> Frame 0 points to the beggining of the file
-        appStateMachine->FRAME.Stop    = convSamp2Fram(tmpFile->getSize());                               // Updates StopFrame to End of tmpFile
-        appStateMachine->FRAME.EoF     = convSamp2Fram(tmpFile->getSize());
-    
-        pitchMeterWrapper->computePitchOFFLine();
-        //recalculaPitchOffLine();
-
-        // Update GUI Dependancies, i.e. Tplot buffer and zoom_slider range
-        ssGui->piano->copyData2FileBuffer();
-
-        if (convSamp2Sec(tmpFile->getSize())<=ZOOM_MAX_TIME)
-            ssGui->updatePlotsData(0.0, convSamp2Sec(tmpFile->getSize()));
-        else
-            ssGui->updatePlotsData(0.0, ZOOM_MAX_TIME);
-    
-    //ofEvents().enable();
-
-}
-
-void ssApp::recordWAVfile(string filename){
-    
-    if (dbgMode) cout<<"in ssApp::recordWAVfile method"<<endl;
-    
-    
-    recFileName = filename;
-    recFile->setChannels(1);
-    recFile->setSampleRate(sampleRate);
-    recFile->setResolution(16);
-    recFile->setLength(tmpFile->getSize());
-    recFile->setPath(ofxiPhoneGetDocumentsDirectory() + recFileName + ".wav");
-    recFile->updateFloatDataBuffer(tmpFile, 0, tmpFile->getSize());             // in samples || update Tplot buffer
-    recFile->save();
-
-    // Points to the begining of previous Recorded file
-    appStateMachine->FRAME.Playing = 0;                                       // Reset Play Position
-    appStateMachine->FRAME.Start   = 0;                                         // Resets to the start Frame
-    appStateMachine->FRAME.Stop    = convSamp2Fram(tmpFile->getSize());         // Updates StopFrame to End of tmpFile
-    appStateMachine->FRAME.EoF     = convSamp2Fram(tmpFile->getSize());
-    
-    //recalculaPitchOffLine();
-    pitchMeterWrapper->computePitchOFFLine();
-    
-    ssGui->piano->copyData2FileBuffer();
-    
-    // Update GUI Dependancies, i.e. Tplot buffer and zoom_slider range
-    if (convSamp2Sec(tmpFile->getSize())<=ZOOM_MAX_TIME)
-        ssGui->updatePlotsData(0.0, convSamp2Sec(tmpFile->getSize()));
-    else
-        ssGui->updatePlotsData(0.0, ZOOM_MAX_TIME);
-    
-    appWorkingMode = PLAY_MODE;
-    
-    ssGui->rephreshGLData();
-    
-    // Midi Objects
-    midiWrapper = new ssCoreMidiWrapper();
-    midiWrapper->init("Piano");
-    
-    appWorkingMode = PLAY_MODE;
-
-//    ssGui->btn_record->setVisible(false);
-
-    fileIsLoaded = true;
-
-    vcAppDelegatePNT.navigationController.navigationBar.topItem.title = ofxStringToNSString(recFileName+".wav");
-}
+////--------------------------------------------------------------
+//void ssApp::loadWAVfile(string filename){
+//    
+//    if (dbgMode) cout<<"in loadWAVfile method"<<endl;
+//    
+//  //  ofEvents().disable();
+//    
+//        delete wavFile;
+//        wavFile = new ssWavIO();
+//        wavFile->setPath(ofxiPhoneGetDocumentsDirectory()+filename + ".wav");
+//        wavFile->read();
+//    
+//        sampleRate = wavFile->getSampleRate();
+//    
+//        // Write Wav Data in TempFile
+//        //tmpFile->~TmpFile();       // Remove Old TmpFile Object
+//        delete tmpFile;
+//        tmpFile = new TmpFile("SingingStudioTime");   // Create New TmpFile Object
+//        tmpFile->writeBlock(wavFile->myFloatData, 0, wavFile->getLengthInSamples());
+//
+//        delete pitchMeterWrapper;
+//        pitchMeterWrapper = new ssPitchMeterWrapper(num_2bins,num_bins,sampleRate,bufferSize);
+//
+//        // Points to the begining of the Loaded file
+//        appStateMachine->FRAME.Playing = 0;     // in Frames -> Frame 0 points to the beggining of the file
+//        appStateMachine->FRAME.Start   = 0;       // in Frames -> Frame 0 points to the beggining of the file
+//        appStateMachine->FRAME.Stop    = convSamp2Fram(tmpFile->getSize());                               // Updates StopFrame to End of tmpFile
+//        appStateMachine->FRAME.EoF     = convSamp2Fram(tmpFile->getSize());
+//    
+//        pitchMeterWrapper->computePitchOFFLine();
+//        //recalculaPitchOffLine();
+//
+//        // Update GUI Dependancies, i.e. Tplot buffer and zoom_slider range
+//        ssGui->piano->copyData2FileBuffer();
+//
+//        if (convSamp2Sec(tmpFile->getSize())<=ZOOM_MAX_TIME)
+//            ssGui->updatePlotsData(0.0, convSamp2Sec(tmpFile->getSize()));
+//        else
+//            ssGui->updatePlotsData(0.0, ZOOM_MAX_TIME);
+//    
+//    //ofEvents().enable();
+//
+//}
+//
+//void ssApp::recordWAVfile(string filename){
+//    
+//    if (dbgMode) cout<<"in ssApp::recordWAVfile method"<<endl;
+//    
+//    
+//    recFileName = filename;
+//    recFile->setChannels(1);
+//    recFile->setSampleRate(sampleRate);
+//    recFile->setResolution(16);
+//    recFile->setLength(tmpFile->getSize());
+//    recFile->setPath(ofxiPhoneGetDocumentsDirectory() + recFileName + ".wav");
+//    recFile->updateFloatDataBuffer(tmpFile, 0, tmpFile->getSize());             // in samples || update Tplot buffer
+//    recFile->save();
+//
+//    // Points to the begining of previous Recorded file
+//    appStateMachine->FRAME.Playing = 0;                                       // Reset Play Position
+//    appStateMachine->FRAME.Start   = 0;                                         // Resets to the start Frame
+//    appStateMachine->FRAME.Stop    = convSamp2Fram(tmpFile->getSize());         // Updates StopFrame to End of tmpFile
+//    appStateMachine->FRAME.EoF     = convSamp2Fram(tmpFile->getSize());
+//    
+//    //recalculaPitchOffLine();
+//    pitchMeterWrapper->computePitchOFFLine();
+//    
+//    ssGui->piano->copyData2FileBuffer();
+//    
+//    // Update GUI Dependancies, i.e. Tplot buffer and zoom_slider range
+//    if (convSamp2Sec(tmpFile->getSize())<=ZOOM_MAX_TIME)
+//        ssGui->updatePlotsData(0.0, convSamp2Sec(tmpFile->getSize()));
+//    else
+//        ssGui->updatePlotsData(0.0, ZOOM_MAX_TIME);
+//    
+//    appWorkingMode = PLAY_MODE;
+//    
+//    ssGui->rephreshGLData();
+//    
+//    // Midi Objects
+//    midiWrapper = new ssCoreMidiWrapper();
+//    midiWrapper->init("Piano");
+//    
+//    appWorkingMode = PLAY_MODE;
+//
+////    ssGui->btn_record->setVisible(false);
+//
+//    fileIsLoaded = true;
+//
+//    vcAppDelegatePNT.navigationController.navigationBar.topItem.title = ofxStringToNSString(recFileName+".wav");
+//}
 
 
 //--------------------------------------------------------------

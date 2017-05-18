@@ -12,7 +12,7 @@
 #include "ofxiPhone.h"
 #include "ofxiPhoneExtras.h"
 
-#include "ssMidiFileIO.h"
+//#include "ssMidiFileIO.h"
 
 #include "PitchMeter.h"
 
@@ -30,7 +30,7 @@ class ssComputeMidiNotes {
 public:
 
     PitchMeter      * pitchMeter;
-    ssMidiFileIO    * midiFile;
+//    ssMidiFileIO    * midiFile;
 
     int num_bins;
 

@@ -97,7 +97,7 @@ UIColor  * customGray = [UIColor colorWithRed:0.29 green:0.29 blue:0.29 alpha:1.
     ////////////////////////////////////////////////////////////////////
     // Button Record
     ////////////////////////////////////////////////////////////////////
-    UIImage *imageRecord = [UIImage imageNamed:@"GUI/btn_record_.png"];
+    UIImage *imageRecord = [UIImage imageNamed:@"GUI/start_button.png"];
     UIImage *imageRecordSelected = [UIImage imageNamed:@"GUI/btn_record_on.png"];
     buttonRecord = [UIButton buttonWithType:UIButtonTypeCustom];
     buttonRecord.bounds = CGRectMake( 0, 0, imageRecord.size.width, imageRecord.size.height );
@@ -179,17 +179,19 @@ UIColor  * customGray = [UIColor colorWithRed:0.29 green:0.29 blue:0.29 alpha:1.
     
     cout << "[View Did Appear] Entering App" << endl;
     
-//    self.navigationController.navigationBar.topItem.title = @"VocalCoach™";
+    self.navigationController.navigationBar.hidden = YES;
     
-    self.navigationController.navigationBar.topItem.title = [NSString stringWithCString:(myApp->loadFileName+".wav").c_str() encoding:[NSString defaultCStringEncoding]];
+//    self.navigationController.navigationBar.topItem.title = @"Vocal Coach";
     
-    self.navigationController.navigationBar.opaque  = YES;
+//    self.navigationController.navigationBar.topItem.title = [NSString stringWithCString:(myApp->loadFileName+".wav").c_str() encoding:[NSString defaultCStringEncoding]];
+    
+//    self.navigationController.navigationBar.opaque  = YES;
     self.navigationController.toolbar.opaque        = YES;
     self.navigationController.toolbarHidden         = NO;
     
     self.navigationController.toolbar.barTintColor          = [UIColor colorWithRed:0.29 green:0.29 blue:0.29 alpha:1.0];      // Bottom bar color
-    self.navigationController.navigationBar.barTintColor    = [UIColor colorWithRed:0.29 green:0.29 blue:0.29 alpha:1.0];      // Top bar color
-    self.navigationController.navigationBar.tintColor       = [UIColor grayColor];    // Text Color
+//    self.navigationController.navigationBar.barTintColor    = [UIColor colorWithRed:0.29 green:0.29 blue:0.29 alpha:1.0];      // Top bar color
+//    self.navigationController.navigationBar.tintColor       = [UIColor grayColor];    // Text Color
 }
 
 

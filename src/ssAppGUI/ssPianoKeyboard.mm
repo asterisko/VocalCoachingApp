@@ -10,13 +10,9 @@ extern ssApp * myApp;
 ssPianoKeyboard::ssPianoKeyboard(int _fileBuffer_size){
     
     
-    myApp->dbgMode = DEBUG; // ANDRE comm (turn debugging on)
+    myApp->dbgMode = DEBUG; // RELEASE or DEBUG
     
     if (myApp->dbgMode) cout << "creating ssPianoKeyboard" << endl;
-    
-//    myfont.loadFont("fonts/C&C Red Alert [INET].ttf", 9);
-//    myfont2.loadFont("fonts/C&C Red Alert [INET].ttf", 17);
-//    myfont3.loadFont("fonts/fontawesome-webfont.ttf", 9);
     
     myfont.loadFont("fonts/C&C Red Alert [INET].ttf", 9);
     myfont2.loadFont("fonts/C&C Red Alert [INET].ttf", 17);
@@ -79,8 +75,6 @@ void ssPianoKeyboard::init(float _xi, float _yi, float _w,float _h){
     
     xi = _xi;
     yi = _yi;
-//    xi = 400;
-//    yi = 800;
     Wkeyboard = _w;
     Hkeyboard = _h;
     
@@ -156,19 +150,6 @@ void ssPianoKeyboard::addKeyboard(void)
     
     for (int i=0;i<midiScale.size(); i++)
     {
-//        keywidth = roundf(midiScale[i].keyWidthPercent*Wkeyboard);
-//        keyheight = roundf(midiScale[i].keyHeightPercent*Hkeyboard);
-//        keycolor = midiScale[i].keyColor;
-//        keypos = roundf(Wkeyboard - midiScale[i].keyPosPercent*Wkeyboard - keywidth);
-//        ssPianoKey key;
-//        key.disableAppEvents();
-//        // key.enableAppEvents();				// call this if object should update/draw automatically	(default)
-//        key.enableMouseEvents();
-//        key.set(xi , yi + keypos , keyheight , keywidth);
-//        key.midiInfo = midiScale[i];
-//        keyboard[i] = key;
-//        keyboard[i].setup(); // ANDRE
-        
         keywidth = roundf(midiScale[i].keyWidthPercent*Wkeyboard);
         keyheight = roundf(midiScale[i].keyHeightPercent*Hkeyboard);
         keycolor = midiScale[i].keyColor;
@@ -188,36 +169,6 @@ void ssPianoKeyboard::addKeyboard(void)
     }
 }
 
-///////////////////////////////////////////////////////////
-// Set New Keyboard Position
-///////////////////////////////////////////////////////////
-void ssPianoKeyboard::setKeyboardPosition(float _xi,float _yi){
-    
-    if (myApp->dbgMode) cout << "in ssPianoKeyboard::setKeyboardPosition" << endl;
-    
-    xi = _xi;
-    yi = _yi;
-    
-    float keypos,keywidth,keyheight,keyBackPos;
-    
-    for (int i=0;i<midiScale.size();i++) {
-        keywidth = roundf(midiScale[i].keyWidthPercent*Wkeyboard);
-        keyheight = roundf(midiScale[i].keyHeightPercent*Hkeyboard);
-        keyBackPos = roundf(midiScale[i].keyPosBackgroundPercent*Wkeyboard);
-        keypos = roundf(Wkeyboard - midiScale[i].keyPosPercent*Wkeyboard - keywidth);
-        keyboard[i].set(_xi , _yi + keypos , keyheight , keywidth);
-    }
-    
-    myApp->ssGui->rephreshGLData();
-}
-
-///////////////////////////////////////////////////////////
-// Set New Keyboard Position Y
-///////////////////////////////////////////////////////////
-void ssPianoKeyboard::setKeyboardPositionY(float _yi){
-    
-    setKeyboardPosition(xi,_yi);
-}
 
 ////////////////////////////////////////////////////////
 // Copy data in plotBuffer 2 fileBuffer
@@ -263,7 +214,6 @@ float ssPianoKeyboard::midi2pixelY(float midi){
     return roundSIL(ofMap(midi, FIRST_KEY, LAST_KEY, Wkeyboard, 0) - Wkeyboard*1/NKeys/2,0);
 }
 
-// ANDRE
 float ssPianoKeyboard::midi2pixelX(float midi){
     
 //    cout << "midi: " << midi << endl << "return: " << roundSIL(ofMap(midi, FIRST_KEY, LAST_KEY, 0, Wkeyboard) - Wkeyboard*1/NKeys/2,0) << endl;
@@ -277,107 +227,8 @@ float ssPianoKeyboard::power2pixelY(float power) {
     return roundSIL(ofMap(power, MIN_POWER, MAX_POWER, MAINPLOT_X + MAINPLOT_H, MAINPLOT_X), 0);
 }
 
-///////////////////////////////////////////////////////////
-// ssPianoKeyboard::moveY_pitchPlot
-///////////////////////////////////////////////////////////
-void ssPianoKeyboard :: moveY_pplot (float diff_y){
-    
-    if (myApp->dbgMode) cout << "in moveY" << endl;
-    
-    int   newPos_y = diff_y + yi;
-    
-    if (newPos_y < PLOTS_H && newPos_y > CPANEL_Y - Wkeyboard) {
-        setKeyboardPositionY(newPos_y); // Update Y position
-    }
-}
 
-///////////////////////////////////////////////////////////
-// ssTouch::zoomY
-///////////////////////////////////////////////////////////
-//void ssPianoKeyboard :: zoomY_pplot_old (float dist_y){
-//    
-//    if (myApp->dbgMode) cout << "in zoomY" << endl;
-//        
-//    float zoomPercent = 0.10;
-//    
-//    float t1 = myApp->ssGui->touchDragObj->touch1.y;
-//    float t2 = myApp->ssGui->touchDragObj->touch2.y;
-//    
-//    float touchMin = t1 < t2 ? t1 : t2;
-//    
-//    float keyboardGravityCenterFactor = ofMap(touchMin + dist_y/2 , yi, yi+Wkeyboard, 0.0, 1.0);
-//    //////////////////////////////////////////
-//    // ZOOM IN Y
-//    //////////////////////////////////////////
-//    if (dist_y - dist_y_old > 0.0) {        // estica
-//        Wkeyboard = roundSIL((1+zoomPercent)*Wkeyboard,0);
-//        if (Wkeyboard>2*ofGetWidth()){
-//            Wkeyboard = 2*ofGetWidth();
-//            setKeyboardPositionY(yi);
-//        }
-//        else
-//            setKeyboardPositionY(yi - roundSIL(zoomPercent*Wkeyboard,0)*keyboardGravityCenterFactor);
-//    }
-//    //////////////////////////////////////////
-//    // ZOOM OUT Y
-//    //////////////////////////////////////////
-//    else if (dist_y - dist_y_old < 0.0) {   // encolhe
-//        
-//        Wkeyboard = roundSIL((1-zoomPercent)*Wkeyboard,0);
-//        
-//        if (Wkeyboard<ofGetWidth()){
-//            Wkeyboard = ofGetWidth();
-//            setKeyboardPositionY(yi);
-//        }
-//        else
-//        {
-//            //TOP:      yi = 225 (zoom min)  -> yi = 225 (zoom Max)
-//            if (yi>220) {
-//                yi=220;
-//                setKeyboardPositionY(yi+roundSIL(zoomPercent*Wkeyboard,0)*keyboardGravityCenterFactor);
-//            }
-//            //BOTTOM:   yi = -355 (zoom min) -> yi = -1379 (zoom Max)
-//            else if (yi + Wkeyboard < CPANEL_Y) {
-//                yi = CPANEL_Y - Wkeyboard;
-//                setKeyboardPositionY(yi);
-//            }
-//            else
-//                setKeyboardPositionY(yi + roundSIL(zoomPercent*Wkeyboard,0)*keyboardGravityCenterFactor);
-//        }
-//    }
-//    dist_y_old = dist_y;
-//}
-//
-/////////////////////////////////////////////////////////////
-//// ssTouch::zoomY
-/////////////////////////////////////////////////////////////
-//void ssPianoKeyboard :: zoomY_pplot (void){
-//    
-//    if (myApp->dbgMode) cout << "in zoomY" << endl;
-//    
-//    ofPinchGestureRecognizer * pinchObj = myApp->recogPintch;
-//    
-//    Wkeyboard = roundSIL(pinchObj->scale*Wkeyboard,0);
-//
-//    float dy = pinchObj->touchMinY + pinchObj->distY/2;
-//    
-//    float keyboardGravityCenterFactor = ofMap( dy , yi , yi + Wkeyboard, 0.0, 1.0);
-//    
-//   // cout << "keyboardGravityCenterFactor >>>>>>>>>>>>>>>>>>>> " << keyboardGravityCenterFactor << endl;
-//   // cout << "dy >>>>>>>>>>>>>>>>>>>>  " << dy << endl;
-//    
-//    if (Wkeyboard>2*ofGetWidth()){
-//        Wkeyboard = 2*ofGetWidth();
-//        setKeyboardPositionY(yi);
-//    }
-//    else if (Wkeyboard<ofGetWidth()){
-//        Wkeyboard = ofGetWidth();
-//        setKeyboardPositionY(yi);
-//        }
-//    else {
-//        setKeyboardPositionY(yi + (1.0-pinchObj->scale)*keyboardGravityCenterFactor*Wkeyboard);
-//        }
-//}
+
 
 ///////////////////////////////////////////////////////////
 // ssPianoKeyboard Update Method
@@ -393,13 +244,8 @@ void ssPianoKeyboard::update(){
 void ssPianoKeyboard::draw(){
     //if (myApp->dbgMode) cout<< "in Draw Method of ssPianoKeyboard" << endl;
     
-//    float xiPitchMagnitudePlot = OFX_UI_GLOBAL_WIDGET_SPACING;
-//    float widthPitchMagnitudePlot = APP_WIDTH;
-    
     float yiPitchMagnitudePlot = MAINPLOT_X;
     float lengthPitchMagnitudePlot = MAINPLOT_H;
-
-
     
     //////////////////////////////////////////
     // Draw Keyboard + PIANO ROLL
@@ -407,30 +253,15 @@ void ssPianoKeyboard::draw(){
     setPlotsColorBack();
     drawKeyboardAndPianoRoll_Optimized(yiPitchMagnitudePlot,lengthPitchMagnitudePlot);       // Decrease to 15fps
     
-//    if (myApp->fileIsLoaded) {
-//        if (myApp->appWorkingMode==PLAY_MODE) {
-//            //////////////////////////////////////////////////
-//            // Draw Pitch Notes in Piano Roll
-//            //////////////////////////////////////////////////
-//            drawPitchNotes_Optimized();
-//            //OLD__drawPitchNotes();
-//            //////////////////////////////////////////////////
-//            // Draw Pitch Plot in Piano Roll
-//            //////////////////////////////////////////////////
-//            drawPitchPlot_Optimized();                 // decrease to 10fps     |   6.0  fps
-//            //OLD__drawPitchPlot();
-//            }
-//        }
-//    else if (myApp->appWorkingMode==RECORD_MODE) {
-        //drawPitchPlot2();
-//    }
-    
     if (myApp->appWorkingMode==RECORD_MODE) {
-        //ANDRE PLOT
+        if(myApp->pitchMeterWrapper->midiNotes->notePower.size() > 0) // FOR DEBUGGING
+            printMatrix();
         drawPitchPowerPlot();
     }
-    else if (myApp->appWorkingMode == PLAY_MODE)
-        drawFullPitchPowerPlot();
+    else if (myApp->appWorkingMode == PLAY_MODE) {
+        drawRegionsPlot();
+//        drawFullPitchPowerPlot();
+    }
 
     
     //////////////////////////////////////////////////
@@ -440,49 +271,15 @@ void ssPianoKeyboard::draw(){
     ofFill();
 //    img.draw(-4, 0,APP_WIDTH+4,PLOTS_H);
     ofRect(-4, 0,APP_WIDTH+4,PLOTS_H);
-
-    //////////////////////////////////////////////////
-    // Draw vertical Time Lines
-    //////////////////////////////////////////////////
-    drawVerticalTimeLines();                 // decrease to 15fps     |    6.0 fps
     
-    
-    //////////////////////////////////////////////////
-    // Draw vertical Time Lines
-    //////////////////////////////////////////////////
-    if (myApp->fileIsLoaded)
-        drawFileBuffer_Optimized();
-    
-    
-    //////////////////////////////////////////////////
-    // Draw cueBar
-    //////////////////////////////////////////////////
-//    if (myApp->ssGui->cueBar_pos>PLOTS_X && myApp->ssGui->cueBar_pos<PLOTS_X+PLOTS_W){
-//        setBarColor();
-//        ofSetLineWidth(2.0);
-//        ofLine(myApp->ssGui->cueBar_pos   , APP_HEIGHT*0.14 , myApp->ssGui->cueBar_pos   , APP_HEIGHT);
-//        ofSetLineWidth(1.0);
-//        }
-    
-    //////////////////////////////////////////////////
-    // Draw Bottom Background
-    //////////////////////////////////////////////////
- //   setCPanelColorBack();
- //   ofFill();
- //   img.draw(-4, CPANEL_Y,APP_WIDTH+4,PLOTS_H);
-    
-    float durationInSec;
-    
-    if (myApp->appWorkingMode==PLAY_MODE)
-        durationInSec = convFram2Sec(myApp->appStateMachine->FRAME.Playing);
-    else
-        durationInSec = convFram2Sec(myApp->appStateMachine->FRAME.Recording);
-
-    string strTimeBar = formatTimeMMSS(durationInSec);
-    
-//    string strTimeDur = formatTimeMMSS(myApp->ssGui->zoom_sliderH->getScaledValueHigh()-myApp->ssGui->zoom_sliderH->getScaledValueLow());
-    
-//    myApp->ssGui->timeStr->setLabel("Cursor > " + strTimeBar + "   Duration > " + strTimeDur);
+//    float durationInSec;
+//    
+//    if (myApp->appWorkingMode==PLAY_MODE)
+//        durationInSec = convFram2Sec(myApp->appStateMachine->FRAME.Playing);
+//    else
+//        durationInSec = convFram2Sec(myApp->appStateMachine->FRAME.Recording);
+//
+//    string strTimeBar = formatTimeMMSS(durationInSec);
     
     ofPopStyle();
 
@@ -493,9 +290,6 @@ void ssPianoKeyboard::draw(){
 ///////////////////////////////////////////////////////////
 void ssPianoKeyboard::initGLPianoRollData(){
     // if (myApp->dbgMode) cout<< "in Update Method of ssPianoKeyboard" << endl;
-    
-//    float xiPitchPlot = PLOTS_X + OFX_UI_GLOBAL_WIDGET_SPACING;
-//    float widthPitchPlot = PLOTS_W;
     
     float yiPitchMagnitudePlot = MAINPLOT_X;
     float lengthPitchMagnitudePlot = MAINPLOT_H;
@@ -527,18 +321,7 @@ void ssPianoKeyboard::initGLPianoRollData(){
         c_pr.push_back(c);
         c_pr.push_back(c);
         
-//        cout << midiScale[i].keyColor << endl;
-        
         // Create Vertices Array
-        
-//        v.x = xiPitchMagnitudePlot;                   v.y = yiPitchMagnitudePlot;         // x , y
-//        v_pr.push_back(v);
-//        v.x = xiPitchMagnitudePlot;                   v.y = yiPitchMagnitudePlot + lengthPitchMagnitudePlot;  // x , y
-//        v_pr.push_back(v);
-//        v.x = xiPitchMagnitudePlot + Wkey;            v.y = yiPitchMagnitudePlot;         // x , y
-//        v_pr.push_back(v);
-//        v.x = xiPitchMagnitudePlot + Wkey;            v.y = yiPitchMagnitudePlot + lengthPitchMagnitudePlot;  // x , y
-//        v_pr.push_back(v);
 
         v.x = xiPitchMagnitudePlot + Wkey;            v.y = yiPitchMagnitudePlot + lengthPitchMagnitudePlot;  // x , y
         v_pr.push_back(v);
@@ -566,113 +349,7 @@ void ssPianoKeyboard::initGLPianoRollData(){
     v_pr.clear();
     ind_pr.clear();
 
-    
-    ////////////////////////////////////////////
-    // Prepare Piano Roll Draw
-    ////////////////////////////////////////////
-    // Create Vertex Array
-//    for ( int i = 0; i <= LAST_KEY - FIRST_KEY; i++) {
-//        
-//        float yiPitchPlot = yi + Wkeyboard - (i+1)*Wkey;
-//        
-//        ofVec2f v;
-//        ofFloatColor c;
-//        
-//        // Create Color Array
-//        if (midiScale[i].keyColor == WHITE_COLOR){
-//            c.r = 0.16; c.g = 0.20; c.b = 0.23;
-//        }
-//        else{
-//            c.r = 0.13; c.g = 0.16; c.b = 0.18;
-//        }
-//        
-//        c.a = 0.65;
-//        
-//        c_pr.push_back(c);
-//        c_pr.push_back(c);
-//        c_pr.push_back(c);
-//        c_pr.push_back(c);
-//        
-//        // Create Vertices Array
-//        
-//        v.x = xiPitchPlot;                   v.y = yiPitchPlot;         // x , y
-//        v_pr.push_back(v);
-//        v.x = xiPitchPlot + widthPitchPlot;  v.y = yiPitchPlot;         // x , y
-//        v_pr.push_back(v);
-//        v.x = xiPitchPlot;                   v.y = yiPitchPlot + Wkey;  // x , y
-//        v_pr.push_back(v);
-//        v.x = xiPitchPlot + widthPitchPlot;  v.y = yiPitchPlot + Wkey;  // x , y
-//        v_pr.push_back(v);
-//    }
-//    
-//    VBO_pr_size = v_pr.size();
-//    
-//    // Create Index Array
-//    for (int j=0;j<VBO_pr_size;j++)
-//        ind_pr.push_back(j);
-//    
-//    VBO_pianoRoll.setVertexData(&v_pr[0], VBO_pr_size, GL_DYNAMIC_DRAW );
-//    VBO_pianoRoll.setColorData (&c_pr[0], VBO_pr_size, GL_DYNAMIC_DRAW );
-//    VBO_pianoRoll.setIndexData (&ind_pr[0], VBO_pr_size, GL_DYNAMIC_DRAW );
-//    glEnable(GL_DEPTH_TEST);
-//    
-//    // Free Memory
-//    v_pr.clear();
-//    v_pr.clear();
-//    ind_pr.clear();
 }
-
-///////////////////////////////////////////////////////////
-// ssPianoKeyboard Init Piano Bar GL data
-///////////////////////////////////////////////////////////
-//void ssPianoKeyboard::initGLPitchPlotData(){
-//    // if (myApp->dbgMode) cout<< "in ssPianoKeyboard::rephreshGLPitchNotes" << endl;
-//    
-//    float _begin = pitchBuffer_pos;
-//    float _end   = pitchBuffer_pos + pitchBuffer_size;
-//    
-//    //////////////////////////////////////////////////
-//    // Draw piano roll notes
-//    //////////////////////////////////////////////////
-//    for (int i=_begin ; i<_end ; i++) {
-//        
-//        float x_pos = frame2pixelX(i , _begin , _end) + PLOTS_X + OFFSET_X;
-//        float y_pos = midi2pixelY(myApp->pitchMeterWrapper->midiNotes->midiExactNoteData[i]) + yi;
-//        
-//        
-//        ofVec2f v;
-//        ofFloatColor c;
-//        
-//        // Create Color Value
-//        c.r = 1.00; c.g = 0.0; c.b = 0.0; c.a = 1.0;
-//        
-//        // Create Vertices Value
-//        v.x = x_pos; v.y = y_pos;         // x , y
-//        
-//        // Add to Vertex Vectors only Valid Midi Data
-//        if (myApp->pitchMeterWrapper->midiNotes->midiExactNoteData[i]>FIRST_KEY && myApp->pitchMeterWrapper->midiNotes->midiExactNoteData[i]<LAST_KEY)
-//        {
-//            c_pp.push_back(c);
-//            v_pp.push_back(v);
-//        }
-//    }
-//    
-//    VBO_pp_size = v_pp.size();
-//    
-//    // Create Index Array
-//    for (int j=0;j<VBO_pp_size;j++)
-//        ind_pp.push_back(j);
-//    
-//    VBO_pitchPlot.setVertexData(&v_pp[0], VBO_pp_size, GL_DYNAMIC_DRAW );
-//    VBO_pitchPlot.setColorData (&c_pp[0], VBO_pp_size, GL_DYNAMIC_DRAW );
-//    VBO_pitchPlot.setIndexData (&ind_pp[0], VBO_pp_size, GL_DYNAMIC_DRAW );
-//    glEnable(GL_DEPTH_TEST);
-//    
-//    // Free Memory
-//    v_pp.clear();
-//    c_pp.clear();
-//    ind_pp.clear();
-//}
 
 
 ///////////////////////////////////////////////////////////
@@ -681,40 +358,15 @@ void ssPianoKeyboard::initGLPianoRollData(){
 void ssPianoKeyboard::rephreshGLPianoRollData(){
     // if (myApp->dbgMode) cout<< "in Update Method of ssPianoKeyboard" << endl;
     
-//    float xiPitchPlot = PLOTS_X + OFX_UI_GLOBAL_WIDGET_SPACING;
-//    float widthPitchPlot = PLOTS_W;
-    
-//    float Wkey = Wkeyboard*1/NKeys;
     
     float yiPitchMagnitudePlot = MAINPLOT_X;
     float lengthPitchMagnitudePlot = MAINPLOT_H;
     
     float Wkey = Wkeyboard*1/(NKeys+1);
     
-    ////////////////////////////////////////////
-    // Prepare Piano Roll Draw
-    ////////////////////////////////////////////
-    // Create Vertex Array
-//    for ( int i = 0; i <= LAST_KEY - FIRST_KEY; i++) {
-//        
-//        float yiPitchPlot = yi + Wkeyboard - (i+1)*Wkey;
-//        
-//        ofVec2f v;
-//        
-//        // Create Vertices Array
-//        v.x = xiPitchPlot;                   v.y = yiPitchPlot;         // x , y
-//        v_pr.push_back(v);
-//        v.x = xiPitchPlot + widthPitchPlot;  v.y = yiPitchPlot;         // x , y
-//        v_pr.push_back(v);
-//        v.x = xiPitchPlot;                   v.y = yiPitchPlot + Wkey;  // x , y
-//        v_pr.push_back(v);
-//        v.x = xiPitchPlot + widthPitchPlot;  v.y = yiPitchPlot + Wkey;  // x , y
-//        v_pr.push_back(v);
-//    }
     
     for ( int i = 0; i <= LAST_KEY - FIRST_KEY; i++) {
         
-        //float xiPitchMagnitudePlot = xi + Wkeyboard - (i+1)*Wkey;
         float xiPitchMagnitudePlot = xi + (i)*Wkey;
         
         ofVec2f v;
@@ -741,148 +393,6 @@ void ssPianoKeyboard::rephreshGLPianoRollData(){
     ind_pr.clear();
 }
 
-//void ssPianoKeyboard::c(){
-//    // if (myApp->dbgMode) cout<< "in ssPianoKeyboard::rephreshGLPitchNotes" << endl;
-//    
-//    float _begin = pitchBuffer_pos;
-//    float _end   = pitchBuffer_pos + pitchBuffer_size;
-//    float Wkey = Wkeyboard*1/NKeys;
-//    
-//    //////////////////////////////////////////////////
-//    // Draw piano roll notes
-//    //////////////////////////////////////////////////
-//    for (int i=0;i<myApp->pitchMeterWrapper->midiNotes->noteData.size();i++) {
-//        
-//        float x_pos = frame2pixelX(myApp->pitchMeterWrapper->midiNotes->noteData[i].inicio , _begin , _end) + PLOTS_X + OFFSET_X;
-//        float y_pos = midi2pixelY(myApp->pitchMeterWrapper->midiNotes->noteData[i].nota) - Wkey/2 + yi;
-//        float w = frame2pixelX(myApp->pitchMeterWrapper->midiNotes->noteData[i].duration , 0 , pitchBuffer_size);
-//        float h = Wkey;
-//        
-//        // Draw only notes in visible pianoRoll
-//        if (myApp->pitchMeterWrapper->midiNotes->noteData[i].fim > _begin && myApp->pitchMeterWrapper->midiNotes->noteData[i].inicio < _end) {
-//            // First Note Visual Adjustment (overwrite xpos and w)
-//            if (myApp->pitchMeterWrapper->midiNotes->noteData[i].inicio < _begin)
-//            {
-//                x_pos = frame2pixelX(_begin , _begin , _end) + PLOTS_X;
-//                w = frame2pixelX(myApp->pitchMeterWrapper->midiNotes->noteData[i].fim - _begin , 0 , pitchBuffer_size);
-//            }
-//            // Last Note Visual Adjustment (overwrite w)
-//            else if (myApp->pitchMeterWrapper->midiNotes->noteData[i].fim > _end)
-//            {
-//                w = frame2pixelX(_end - myApp->pitchMeterWrapper->midiNotes->noteData[i].inicio , 0 , pitchBuffer_size);
-//            }
-//            
-//            ofVec2f v;
-//            ofFloatColor c;
-//            
-//            // Create Color Value
-//            c.r = 0.39; c.g = 0.66; c.b = 0.75; c.a = 1.0;
-//            
-//            // Add Color Value to the 4 vertices
-//            c_pn.push_back(c);
-//            c_pn.push_back(c);
-//            c_pn.push_back(c);
-//            c_pn.push_back(c);
-//            
-//            
-//            // Create Vertices Points and push into Vertex Array
-//            v.x = x_pos;          v.y = y_pos;         // x , y
-//            v_pn.push_back(v);
-//            v.x = x_pos;          v.y = y_pos + h;  // x , y
-//            v_pn.push_back(v);
-//            v.x = x_pos + w;      v.y = y_pos;         // x , y
-//            v_pn.push_back(v);
-//            v.x = x_pos + w;      v.y = y_pos + h;  // x , y
-//            v_pn.push_back(v);
-//        }
-//    }
-//    
-//    VBO_pn_size = v_pn.size();
-//    // Create Index Array
-//    for (int j=0;j<VBO_pn_size;j++)
-//        ind_pn.push_back(j);
-//    
-//    VBO_pitchNotes.setVertexData(&v_pn[0], VBO_pn_size, GL_DYNAMIC_DRAW );
-//    VBO_pitchNotes.setColorData (&c_pn[0], VBO_pn_size, GL_DYNAMIC_DRAW );
-//    VBO_pitchNotes.setIndexData (&ind_pn[0], VBO_pn_size, GL_DYNAMIC_DRAW );
-//    glEnable(GL_DEPTH_TEST);
-//    
-//    // Free Memory
-//    v_pn.clear();
-//    v_pn.clear();
-//    ind_pn.clear();
-//}
-
-
-
-///////////////////////////////////////////////////////////
-// ssPianoKeyboard Rephresh Piano Bar GL data
-///////////////////////////////////////////////////////////
-void ssPianoKeyboard::rephreshGLPitchPlotData(){
-    // if (myApp->dbgMode) cout<< "in ssPianoKeyboard::rephreshGLPitchNotes" << endl;
-    
-    int _begin = pitchBuffer_pos;
-    int _end   = pitchBuffer_pos + pitchBuffer_size;
-    
-    //////////////////////////////////////////////////
-    // Draw pitch Plot Data
-    //////////////////////////////////////////////////
-    bool flag = false;
-    for (int i=_begin ; i<_end ; i++) {
-        
-        float x_pos = frame2pixelX(i , _begin , _end) + PLOTS_X + OFFSET_X;
-        float y_pos = midi2pixelY(myApp->pitchMeterWrapper->midiNotes->midiExactNoteData[i]) + yi;
-        
-        
-        ofVec2f v;
-        ofFloatColor c;
-        
-        // Create Vertices Value
-        v.x = x_pos; v.y = y_pos;         // x , y
-        
-        // Add to Vertex Vectors only Valid Midi Data
-        //  if (myApp->pitchMeterWrapper->midiNotes->midiExactNoteData[i]>FIRST_KEY && myApp->pitchMeterWrapper->midiNotes->midiExactNoteData[i]<LAST_KEY)
-        c.r = 1.00; c.g = 0.0; c.b = 0.0;
-        
-        c_pp.push_back(c);
-        v_pp.push_back(v);
-        
-        // Set vertexs to invisible when note is invalid
-        if (myApp->pitchMeterWrapper->midiNotes->midiNoteData[i]==-1)
-            {
-            // Set last 2 vertex to invisible
-            c_pp[c_pp.size()-1].a = 0.0;      // Set vertex to invisible
-            if (c_pp.size()>2)
-                c_pp[c_pp.size()-2].a = 0.0;      // Set vertex to invisible
-            flag = true;
-            }
-        else{
-            if (flag == true){
-                c_pp[c_pp.size()-1].a = 0.0;      // Set vertex to invisible
-                flag = !flag;
-                }
-            else{
-                c_pp[c_pp.size()-1].a = 1.0;      // Set vertex to visible
-                }
-            }
-    }
-    
-    VBO_pp_size = v_pp.size();
-    
-    // Create Index Array
-    for (int j=0;j<VBO_pp_size;j++)
-        ind_pp.push_back(j);
-    
-    VBO_pitchPlot.setVertexData(&v_pp[0], VBO_pp_size, GL_DYNAMIC_DRAW );
-    VBO_pitchPlot.setColorData (&c_pp[0], VBO_pp_size, GL_DYNAMIC_DRAW );
-    VBO_pitchPlot.setIndexData (&ind_pp[0], VBO_pp_size, GL_DYNAMIC_DRAW );
-    glEnable(GL_DEPTH_TEST);
-    
-    // Free Memory
-    v_pp.clear();
-    c_pp.clear();
-    ind_pp.clear();
-}
 
 ///////////////////////////////////////////////////////////
 // ssPianoKeyboard Rephresh Piano Bar GL data
@@ -927,121 +437,6 @@ void ssPianoKeyboard::rephreshGLFileBufferData(){
     v_fb.clear();
     c_fb.clear();
     ind_fb.clear();
-}
-
-
-//////////////////////////////////////////////////
-// Draw Pitch Graph
-//////////////////////////////////////////////////
-void ssPianoKeyboard::rephreshGLPitchPlot_RT(void) {
-    
-    if (myApp->pitchMeterWrapper->midiNotes->getNumOfFrames() != 0) {
-        //////////////////////////////////////////////////
-        // Draw pitch Line
-        //////////////////////////////////////////////////
-        
-        int _begin = pitchBuffer_pos;
-        int _end   = pitchBuffer_pos + pitchBuffer_size;
-        
-        for (int pos = _begin ; pos < myApp->pitchMeterWrapper->midiNotes->midiExactNoteData.size() ; pos++) {
-            
-            // Remap pitch info to Pixel Position in XY grid
-            float x_pixel_pos = frame2pixelX(pos,_begin, _end) + PLOTS_X + OFFSET_X;
-            float y_pixel_pos = midi2pixelY(myApp->pitchMeterWrapper->midiNotes->midiExactNoteData[pos]) + yi;
-            
-            ofVec2f v;
-            ofFloatColor c;
-            
-            // Create Color Value
-            c.r = 1.00; c.g = 0.0; c.b = 0.0; c.a = 1.0;
-            
-            // Create Vertices Value
-            v.x = x_pixel_pos; v.y = y_pixel_pos;         // x , y
-            
-            // Add to Vertex Vectors only Valid Midi Data
-            //      if (myApp->pitchMeterWrapper->midiNotes->midiExactNoteData[pos]>FIRST_KEY && myApp->pitchMeterWrapper->midiNotes->midiExactNoteData[pos]<LAST_KEY) {
-            c_pp_rt.push_back(c);
-            v_pp_rt.push_back(v);
-            //          }
-        }
-        
-    }
-    
-    VBO_pp_size_rt = v_pp_rt.size();
-    
-    // Create Index Array
-    for (int j=0;j<VBO_pp_size_rt;j++)
-        ind_pp_rt.push_back(j);
-    
-    VBO_pitchPlot_RT.setVertexData(&v_pp_rt[0], VBO_pp_size_rt, GL_DYNAMIC_DRAW );
-    VBO_pitchPlot_RT.setColorData (&c_pp_rt[0], VBO_pp_size_rt, GL_DYNAMIC_DRAW );
-    VBO_pitchPlot_RT.setIndexData (&ind_pp_rt[0], VBO_pp_size_rt, GL_DYNAMIC_DRAW );
-    glEnable(GL_DEPTH_TEST);
-    
-    // Free Memory
-    v_pp_rt.clear();
-    c_pp_rt.clear();
-    ind_pp_rt.clear();
-}
-
-
-///////////////////////////////////////////////////////////
-// drawKeyboard
-///////////////////////////////////////////////////////////
-void ssPianoKeyboard::OLD__drawKeyboardAndPianoRoll(float xiPitchPlot, float widthPitchPlot) {
-    
-    float Wkey = Wkeyboard*1/NKeys;
-    
-    //////////////////////////////////////////////////
-    // Draw Piano Roll
-    //////////////////////////////////////////////////
-    // Draw PianoRoll Background - White
-    setPitchPlotWhiteColor();
-    ofRect(xiPitchPlot ,yi, widthPitchPlot, Wkeyboard);
-    
-    for (int i=0;i<midiScale.size(); i++) {
-        ////////////////////////////////////
-        // Draw PianoRoll Black Bars
-        ////////////////////////////////////
-        ofFill();
-        if (keyboard[i].midiInfo.keyColor == BLACK_COLOR)
-            setPitchPlotBlackColor();
-        else
-            setPitchPlotWhiteColor();
-        ofRect(xiPitchPlot ,yi + Wkeyboard - (i+1)*Wkey, widthPitchPlot, Wkey);
-        
-        ////////////////////////////////////
-        // Draw PianoRoll Line Splitter
-        ////////////////////////////////////
-        ofSetColor(0,0,0,30);
-        ofSetLineWidth(2.0);
-        ofLine( xiPitchPlot ,yi + Wkeyboard - (i+1)*Wkey, xiPitchPlot + widthPitchPlot, yi + Wkeyboard - (i+1)*Wkey);
-        ofSetLineWidth(1.0);
-        
-        // Draw Frequency String
-        if (keyboard[midiScale.size()-i-1].midiInfo.keyColor == BLACK_COLOR)
-            ofSetColor(255,255,255,60);
-        else
-            ofSetColor(255,255,255,90);
-        myfont.drawString(ofToString(roundSIL(keyboard[midiScale.size()-i-1].midiInfo.freq,0)) + " Hz", xiPitchPlot + widthPitchPlot + 5, roundSIL(yi + (i)*Wkey - Wkey/2 + 3,0));
-    }
-    
-    ////////////////////////////////////
-    // Draw Keyboard - White Keys First
-    ////////////////////////////////////
-    for (int i=0;i<midiScale.size(); i++) {
-        if (keyboard[i].midiInfo.keyColor == WHITE_COLOR){
-            keyboard[i].draw();
-        }
-    }
-    //////////////////////////////////////////////////
-    // Draw Black Keys in Second (Place on top of white keys)
-    //////////////////////////////////////////////////
-    for (int i=0;i<midiScale.size(); i++) {
-        if (keyboard[i].midiInfo.keyColor == BLACK_COLOR) {
-            keyboard[i].draw();
-        }
-    }
 }
 
 
@@ -1102,141 +497,7 @@ void ssPianoKeyboard::drawKeyboardAndPianoRoll_Optimized(float yiPitchMagnitudeP
     }
 }
 
-//////////////////////////////////////////////////
-// Draw Pitch Graph
-//////////////////////////////////////////////////
-void ssPianoKeyboard::OLD__drawPitchNotes(void) {
-    
-    int _begin = pitchBuffer_pos;
-    int _end   = pitchBuffer_pos + pitchBuffer_size;
-    float Wkey = Wkeyboard*1/NKeys;
-    
-    if (myApp->pitchMeterWrapper->midiNotes->getNumOfFrames() != 0) {
-        //////////////////////////////////////////////////
-        // Draw piano roll notes
-        //////////////////////////////////////////////////
-        for (int i=0;i<myApp->pitchMeterWrapper->midiNotes->noteData.size();i++) {
-            float x_pos = frame2pixelX(myApp->pitchMeterWrapper->midiNotes->noteData[i].inicio , _begin , _end) + PLOTS_X;
-            float y_pos = midi2pixelY(myApp->pitchMeterWrapper->midiNotes->noteData[i].nota) - Wkey/2 + yi;
-            float w = frame2pixelX(myApp->pitchMeterWrapper->midiNotes->noteData[i].duration , 0 , pitchBuffer_size);
-            float h = Wkey;
-            // Draw only notes in visible pianoRoll
-            if (myApp->pitchMeterWrapper->midiNotes->noteData[i].fim > _begin && myApp->pitchMeterWrapper->midiNotes->noteData[i].inicio < _end) {
-                // First Note Visual Adjustment (overwrite xpos and w)
-                if (myApp->pitchMeterWrapper->midiNotes->noteData[i].inicio < _begin)
-                {
-                    x_pos = frame2pixelX(_begin , _begin , _end) + PLOTS_X;
-                    w = frame2pixelX(myApp->pitchMeterWrapper->midiNotes->noteData[i].fim - _begin , 0 , pitchBuffer_size);
-                }
-                // Last Note Visual Adjustment (overwrite w)
-                else if (myApp->pitchMeterWrapper->midiNotes->noteData[i].fim > _end)
-                {
-                    w = frame2pixelX(_end - myApp->pitchMeterWrapper->midiNotes->noteData[i].inicio , 0 , pitchBuffer_size);
-                }
-                
-                ofPushStyle();
-                // Draw MidiNote
-                setMidiNoteColor();
-                ofNoFill();
-                ofSetLineWidth(1.0);
-                ofRectRounded(x_pos + OFFSET_X, y_pos, w, h, 3.0);
-                ofFill();
-                ofSetColor(101, 169, 191,100);
-                ofRectRounded(x_pos + OFFSET_X, y_pos, w, h, 3.0);
-                ofSetLineWidth(1.0);
-                ofPopStyle();
-            }
-        }
-    }
-}
 
-//void ssPianoKeyboard::drawPitchNotes_Optimized() {
-//    
-//    VBO_pitchNotes.drawElements(GL_TRIANGLE_STRIP, VBO_pn_size);
-//}
-
-
-//////////////////////////////////////////////////
-// Draw Pitch Graph
-//////////////////////////////////////////////////
-void ssPianoKeyboard::OLD__drawPitchPlot(void) {
-    
-    
-    if (myApp->pitchMeterWrapper->midiNotes->getNumOfFrames() != 0) {    
-        //////////////////////////////////////////////////
-        // Draw pitch Line
-        //////////////////////////////////////////////////
-        vector<float> xBuff;
-        vector<float> yBuff;
-        xBuff.assign(4, frame2pixelX(pitchBuffer_pos, pitchBuffer_pos, pitchBuffer_pos + pitchBuffer_size) + PLOTS_X);
-        yBuff.assign(4, midi2pixelY(myApp->pitchMeterWrapper->midiNotes->midiExactNoteData[pitchBuffer_pos]) + yi);
-    
-        ofNoFill();
-        setPitchColor();
-        ofSetLineWidth(2.0);
-    
-        int _begin = pitchBuffer_pos;
-        int _end   = pitchBuffer_pos + pitchBuffer_size;
-        
-     //   int step = (_end - _begin)/PLOTS_W;
-        
-        for (int pos = _begin ; pos < _end ; pos++) {
-        
-            // Remap pitch info to Pixel Position in XY grid
-            float x_pixel_pos = frame2pixelX(pos,_begin, _end) + PLOTS_X;
-            float y_pixel_pos = midi2pixelY(myApp->pitchMeterWrapper->midiNotes->midiExactNoteData[pos]) + yi;
-        
-            // X coordinate FIFO for the last 4 positions
-            xBuff.push_back(x_pixel_pos);
-            xBuff.erase(xBuff.begin(), xBuff.begin()+1);
-        
-            // Y coordinate FIFO for the last 4 positions
-            yBuff.push_back(y_pixel_pos);
-            yBuff.erase(yBuff.begin(), yBuff.begin()+1);
-        
-            float maxPixel = myApp->ssGui->piano->Wkeyboard + yi;
-        
-            // If midiNoteData is valid, i.e. >0, draw curve!!!
-            if (yBuff[0]<maxPixel &&
-                yBuff[1]<maxPixel &&
-                yBuff[2]<maxPixel &&
-                yBuff[3]<maxPixel) {
-                ofCurve(xBuff[0] + OFFSET_X, yBuff[0], xBuff[1]+OFFSET_X, yBuff[1], xBuff[2]+OFFSET_X, yBuff[2], xBuff[3]+OFFSET_X, yBuff[3]);
-                }
-        
-        }
-        ofSetLineWidth(1.0);
-        ofFill();
-    }
-}
-
-void ssPianoKeyboard::drawPitchPlot2() {
-    
-    if (myApp->pitchMeterWrapper->midiNotes->getNumOfFrames() != 0) {
-        //////////////////////////////////////////////////
-        // Draw pitch Line
-        //////////////////////////////////////////////////
-        setPitchColor();
-        ofSetLineWidth(2.0);
-        
-        int _begin = pitchBuffer_pos;
-        int _end   = pitchBuffer_pos + pitchBuffer_size;
-        
-        for (int pos = _begin ; pos < myApp->pitchMeterWrapper->midiNotes->midiExactNoteData.size() ; pos++) {
-            // Remap pitch info to Pixel Position in XY grid
-            float x_pixel_pos = frame2pixelX(pos,_begin, _end) + PLOTS_X  + OFFSET_X;
-            float y_pixel_pos = midi2pixelY(myApp->pitchMeterWrapper->midiNotes->midiExactNoteData[pos]) + yi;
-            
-            float x_pixel_pos_last = frame2pixelX(pos-1,_begin, _end) + PLOTS_X  + OFFSET_X;
-            float y_pixel_pos_last = midi2pixelY(myApp->pitchMeterWrapper->midiNotes->midiExactNoteData[pos-1]) + yi;
-
-            ofLine(x_pixel_pos_last, y_pixel_pos_last, x_pixel_pos, y_pixel_pos);
-            }
-        }
-}
-
-
-// ANDRE PLOT
 void ssPianoKeyboard::drawPitchPowerPlot() {
     
 //    cout << "in ssPianoKeyboard::drawPitchPowerPlot()" << endl;
@@ -1244,67 +505,152 @@ void ssPianoKeyboard::drawPitchPowerPlot() {
     
     cout << "previous size: " << previousSizePowerVector << "   |   current size: " << myApp->pitchMeterWrapper->midiNotes->notePower.size() << "   |   novos elementos: " << myApp->pitchMeterWrapper->midiNotes->notePower.size() - previousSizePowerVector << endl;
     
+    cout << "n rows: " << N_ROWS << "       n cols: " << N_COLS << endl;
+    
+    drawPowerLines();
+    
     ofFill();
     int dotRadius = DOT_RADIUS;
     
-    int min_fade_time = 40;
-//    int max_fade_time = 697; // final transparency: 36
-//    int max_fade_time = 765; // fade to zero
-    int max_fade_time = min_fade_time + 762;
+    int min_fade_time = MIN_FADE_TIME;
+    int max_fade_time = MAX_FADE_TIME;
     
-    for (int pos = (int)myApp->pitchMeterWrapper->midiNotes->notePower.size() ; pos > max((int)myApp->pitchMeterWrapper->midiNotes->notePower.size() - max_fade_time, 0) ; pos--) {
-        
-//        cout << pos << endl;
+    for (int pos = max((int)myApp->pitchMeterWrapper->midiNotes->notePower.size() - max_fade_time + 1, 0) ; pos < (int)myApp->pitchMeterWrapper->midiNotes->notePower.size() ; pos++) {
         
         // DEFINE DOT POSITIONS
-        
-//        if (myApp->pitchMeterWrapper->midiNotes->notePower.size() >= max_fade_time
         float x_pixel_pos = midi2pixelX(myApp->pitchMeterWrapper->midiNotes->midiExactNoteData[pos]);   // pitch
         float y_pixel_pos = power2pixelY(myApp->pitchMeterWrapper->midiNotes->notePower[pos]);          // power
+        
+//        cout << "x = " << x_pixel_pos << "  |   y = " << y_pixel_pos << endl;
+        
+        // STORING DOTS IN THE MATRIX
+        if ((pos > previousSizePowerVector) && x_pixel_pos >= 0 && x_pixel_pos <= APP_WIDTH && y_pixel_pos >= MAINPLOT_X && y_pixel_pos <= MAINPLOT_X + MAINPLOT_H) {
+            
+//            int columnIndex = ceil(x_pixel_pos*N_COLS/APP_WIDTH);
+//            int rowIndex = ceil(y_pixel_pos*((int)N_ROWS)/(MAINPLOT_X + MAINPLOT_H));
+
+            int columnIndex = ceil(ofMap(x_pixel_pos, 0, APP_WIDTH, 0, N_COLS));
+            int rowIndex = ceil(ofMap(y_pixel_pos, MAINPLOT_X, MAINPLOT_H + MAINPLOT_X, 0, N_ROWS));
+            
+            cout << "pos = " << pos << "    |   x = " << x_pixel_pos << "   |   y = " << y_pixel_pos << "   |   column index: " << columnIndex << "   |   row index: " << rowIndex << endl;
+            
+            dotsMatrix[(columnIndex-1) + (rowIndex-1)*N_COLS]++;
+        }
+        else
+            cout << "pos = " << pos << endl;
         
         // FADING
         // testei inicialmente para 400 e dava um delay de aproximadamente 5.6 segundos
         // por isso defini o tempo em que começa o fading como sendo 40 para dar os desejados 0.5 segundos
         // o tempo em que os dots assumem a transparência final é definido como sendo 10 segundos, logo aproximadamente 700
         
-        if (pos >= (int)myApp->pitchMeterWrapper->midiNotes->notePower.size() - min_fade_time) { // dots drawn less than 0.5 seconds ago
+        if (pos > (int)myApp->pitchMeterWrapper->midiNotes->notePower.size() - 10){
+            
+//            cout << "in condition 0: pos = " << pos << "    |  size = " << myApp->pitchMeterWrapper->midiNotes->notePower.size() << "    |   transp factor = " << roundSIL(ofMap(pos, (int)myApp->pitchMeterWrapper->midiNotes->notePower.size(), (int)myApp->pitchMeterWrapper->midiNotes->notePower.size() - 10, 0, 255), 0) << endl;
+            
+            ofSetColor(240, 230, 15, roundSIL(ofMap(pos, (int)myApp->pitchMeterWrapper->midiNotes->notePower.size(), (int)myApp->pitchMeterWrapper->midiNotes->notePower.size() - 10, 0, 255), 0));
+        }
+        else if (pos >= (int)myApp->pitchMeterWrapper->midiNotes->notePower.size() - min_fade_time) { // dots drawn less than 0.5 seconds ago
             
 //            cout << "in condition 1: pos = " << pos << "    |  size = " << myApp->pitchMeterWrapper->midiNotes->notePower.size() << endl;
-            ofSetColor(30, 178, 47);
+            
+            // yellow:  rgb(255, 255, 0)
+            // green:   rgb( 30, 180, 50)
+            ofSetColor(roundSIL(ofMap(pos, (int)myApp->pitchMeterWrapper->midiNotes->notePower.size() - 10, (int)myApp->pitchMeterWrapper->midiNotes->notePower.size() - min_fade_time, 255, 30), 0), roundSIL(ofMap(pos, (int)myApp->pitchMeterWrapper->midiNotes->notePower.size() - 10, (int)myApp->pitchMeterWrapper->midiNotes->notePower.size() - min_fade_time, 255, 180), 0), roundSIL(ofMap(pos, (int)myApp->pitchMeterWrapper->midiNotes->notePower.size() - 10, (int)myApp->pitchMeterWrapper->midiNotes->notePower.size() - min_fade_time, 0, 50), 0));
         }
         else if (pos < (int)myApp->pitchMeterWrapper->midiNotes->notePower.size() - min_fade_time && pos > (int)myApp->pitchMeterWrapper->midiNotes->notePower.size() - max_fade_time) { // dots drawn between 0.5 and 10 seconds ago
 
             // PROGRESSIVE FADING
-//            int transp_factor = (((int)myApp->pitchMeterWrapper->midiNotes->notePower.size() - pos - min_fade_time)/9 + 1)*3;
-            int transp_factor = (((int)myApp->pitchMeterWrapper->midiNotes->notePower.size() - pos - min_fade_time)/6 + 1)*2;
             
-//            cout << "in condition 2: pos = " << pos << "    |  size = " << myApp->pitchMeterWrapper->midiNotes->notePower.size() << "    |   transp factor = " << transp_factor << endl;
+//            cout << "in condition 2: pos = " << pos << "    |  size = " << myApp->pitchMeterWrapper->midiNotes->notePower.size() << "    |   transp factor = " << roundSIL(ofMap(pos, (int)myApp->pitchMeterWrapper->midiNotes->notePower.size() - min_fade_time, (int)myApp->pitchMeterWrapper->midiNotes->notePower.size() - max_fade_time, 255, 0), 0) << endl;
             
-            ofSetColor(30, 178, 47, 255 - transp_factor);
+            ofSetColor(30, 180, 50, roundSIL(ofMap(pos, (int)myApp->pitchMeterWrapper->midiNotes->notePower.size() - min_fade_time, (int)myApp->pitchMeterWrapper->midiNotes->notePower.size() - max_fade_time, 255, 0), 0));
             
         }
-//        else { // dots drawn more than 10 seconds ago
-//
-//            cout << "in condition 3: pos = " << pos << endl;
-//
-////            ofSetColor(30, 178, 47, 36);
-//            
-//        }
         
         ofCircle(x_pixel_pos, y_pixel_pos, dotRadius);
     }
     
+    
+    // FREE MEMMORY ALLOCATED TO OUTDATED DOTS (WHOSE INFORMATION IS SAVED IN THE MATRIX)
+    
+    if (myApp->pitchMeterWrapper->midiNotes->notePower.size() > max_fade_time){
+        myApp->pitchMeterWrapper->midiNotes->notePower.erase(myApp->pitchMeterWrapper->midiNotes->notePower.begin(), myApp->pitchMeterWrapper->midiNotes->notePower.end() - max_fade_time);
+        myApp->pitchMeterWrapper->midiNotes->midiExactNoteData.erase(myApp->pitchMeterWrapper->midiNotes->midiExactNoteData.begin(), myApp->pitchMeterWrapper->midiNotes->midiExactNoteData.end() - max_fade_time);
+    }
+    
     ofNoFill();
     
+    previousSizePowerVector = myApp->pitchMeterWrapper->midiNotes->notePower.size();
+}
+
+
+void ssPianoKeyboard::printMatrix() {
+
+//    ofNoFill();
+    for(int i = 0; i < N_ROWS*N_COLS; i++) {
+        
+//        ofSetColor(255, 0, 0, 200);
+//        ofRect((i%N_COLS)*SQUARE_GRANULARITY, MAINPLOT_X + (int)((i/N_COLS)*SQUARE_GRANULARITY), SQUARE_GRANULARITY, SQUARE_GRANULARITY);
+//        myfont.drawString(ofToString(i%N_COLS) + ", " + ofToString(i/N_COLS), i%N_COLS*SQUARE_GRANULARITY + 3, MAINPLOT_X + (int)((i/N_COLS)*SQUARE_GRANULARITY) + 15);
+        
+        cout << dotsMatrix[i] << ' ';
+        if((i+1)%N_COLS == 0) {
+            cout << endl;
+        }
+    }
+//    ofFill();
+    
+    cout << endl;
+}
+
+
+void ssPianoKeyboard::drawRegionsPlot() {
+    
+    cout << "in drawRegionsPlot()" << endl;
+    
+    int maxDots = 0;
+    
+    for (int i = 0 ; i < N_ROWS*N_COLS ; i++) {
+        
+        if (dotsMatrix[i] > maxDots)
+            maxDots = dotsMatrix[i];
+    }
+    
+    ofFill();
+    
+    for (int i = 0 ; i < N_ROWS*N_COLS ; i++) {
+        
+//        ofNoFill();
+//        ofSetColor(255, 0, 0, 200);
+//        ofRect((i%N_COLS)*SQUARE_GRANULARITY, MAINPLOT_X + (int)((i/N_COLS)*SQUARE_GRANULARITY), SQUARE_GRANULARITY, SQUARE_GRANULARITY);
+//        myfont.drawString(ofToString(i%N_COLS) + ", " + ofToString(i/N_COLS), i%N_COLS*SQUARE_GRANULARITY + 3, MAINPLOT_X + (int)((i/N_COLS)*SQUARE_GRANULARITY) + 15);
+//        ofFill();
+    
+        if (!dotsMatrix[i])
+            continue;
+        
+        else {
+            
+//            ofSetColor(255, 255, 255, ofMap(dotsMatrix[i], 0, myApp->pitchMeterWrapper->midiNotes->midiNoteData.size(), 0, 255));
+            ofSetColor(255, 255, 255, ofMap(dotsMatrix[i], 0, maxDots, 0, 255));
+            ofRect((i%N_COLS)*SQUARE_GRANULARITY, MAINPLOT_X + (int)((i/N_COLS)*SQUARE_GRANULARITY), SQUARE_GRANULARITY, SQUARE_GRANULARITY);
+            
+            cout << "x = " << (i%N_COLS)*SQUARE_GRANULARITY << "     |       y = " << (int)(MAINPLOT_X + (i/N_COLS)*SQUARE_GRANULARITY) << "    |   column index: " << i%N_COLS << "    |   row index: " << i/N_COLS << endl;
+        }
+    }
+    
+    ofNoFill();
     drawPowerLines();
     
-    previousSizePowerVector = myApp->pitchMeterWrapper->midiNotes->notePower.size();
 }
 
 void ssPianoKeyboard::drawFullPitchPowerPlot() {
     
     cout << "in drawFullPitchPowerPlot()" << endl;
-//    cout << "previous size: " << previousSizePowerVector << "   |   current size: " << myApp->pitchMeterWrapper->midiNotes->notePower.size() << "   |   novos elementos: " << myApp->pitchMeterWrapper->midiNotes->notePower.size() - previousSizePowerVector << endl;
+    //    cout << "previous size: " << previousSizePowerVector << "   |   current size: " << myApp->pitchMeterWrapper->midiNotes->notePower.size() << "   |   novos elementos: " << myApp->pitchMeterWrapper->midiNotes->notePower.size() - previousSizePowerVector << endl;
+    
+    drawPowerLines();
     
     ofFill();
     int dotRadius = DOT_RADIUS;
@@ -1316,12 +662,12 @@ void ssPianoKeyboard::drawFullPitchPowerPlot() {
         float x_pixel_pos = midi2pixelX(myApp->pitchMeterWrapper->midiNotes->midiExactNoteData[pos]);   // pitch
         float y_pixel_pos = power2pixelY(myApp->pitchMeterWrapper->midiNotes->notePower[pos]);          // power
         
-        ofSetColor(30, 178, 47);
+        //        ofSetColor(20, 200, 40);
+        ofSetColor(30, 180, 50);
         ofCircle(x_pixel_pos, y_pixel_pos, dotRadius);
     }
     
     ofNoFill();
-    drawPowerLines();
     
 }
 
@@ -1342,13 +688,6 @@ void ssPianoKeyboard::drawPowerLines() {
 }
 
 
-void ssPianoKeyboard::drawPitchPlot_Optimized(void) {
-    
-    ofSetLineWidth(2.0);
-    VBO_pitchPlot.drawElements(GL_LINE_STRIP, VBO_pp_size);
-    ofSetLineWidth(1.0);
-}
-
 void ssPianoKeyboard::drawFileBuffer_Optimized(void) {
     
     int xi = PLOTS_X + OFX_UI_GLOBAL_WIDGET_SPACING;
@@ -1362,83 +701,29 @@ void ssPianoKeyboard::drawFileBuffer_Optimized(void) {
     ofSetLineWidth(1.0);
 }
 
-//////////////////////////////////////////////////
-// draw Vertical Time Lines
-/////////////////////////////////////////////////
-void ssPianoKeyboard::drawVerticalTimeLines(void) {
 
-    int _begin = pitchBuffer_pos;
-    int _end   = pitchBuffer_pos + pitchBuffer_size;
-    
-    float _min = myApp->ssGui->zoom_sliderH->getScaledValueLow();
-    float _max = myApp->ssGui->zoom_sliderH->getScaledValueHigh();
-  
-    int tBar = convSec2Fram((_max - _min)/NTIMEBARS);
-    //////////////////////////////////////////////////
-    // Draw vertical Time Lines
-    //////////////////////////////////////////////////
-    setTimeBarsColor();
-    if (myApp->appWorkingMode==PLAY_MODE)
-        if (myApp->pitchMeterWrapper->midiNotes->getNumOfFrames()>0)
-            for (int i = _begin ; i< _end ; i++) {
-                // Remap pitch info to Pixel Position in XY grid
-                float x_pos = frame2pixelX(i,_begin,_end) + PLOTS_X;
-                if (i%tBar==0)
-                    {
-                    ofPushStyle();
-                    //ofLine(x_pos + OFFSET_X , PLOTS_Y + 45, x_pos + OFFSET_X, 1024);
-                    ofLine(x_pos + OFFSET_X , PLOTS_Y + 51, x_pos + OFFSET_X, PLOTS_Y + 54);
-                        
- 
-                    float durationInSec = convFram2Sec(i);
-                    
-                    string strTimeGrid = formatTimeMMSS(durationInSec);
-                    
-                    myfont.drawString(strTimeGrid, roundSIL(x_pos + OFFSET_X,0), roundSIL(PLOTS_Y + 50,0));
-                    ofPopStyle();
-                    }
-            }
-}
-
-
-//////////////////////////////////////////////////
-// Draw Pitch Graph
-//////////////////////////////////////////////////
-void ssPianoKeyboard::drawPitchPlot_RT(void) {
-    
-    //////////////////////////////////////////////////
-    // Draw pitch Line
-    //////////////////////////////////////////////////
-    
-    setPitchColor();
-    ofSetLineWidth(2.0);
-    VBO_pitchPlot_RT.drawElements(GL_LINE_STRIP, VBO_pp_size_rt);
-    ofSetLineWidth(1.0);
-    ofFill();
-}
-
-string ssPianoKeyboard::formatTimeMMSS(float durationInSec) {
-    
-    float seconds1,miliseconds1;
-    
-    miliseconds1 = (int) ((float) modf (durationInSec , &seconds1)*10);
-    
-    int   minutes1 = (int)seconds1/60;
-    
-    string minutes1_str;
-    
-    if (minutes1<10)
-        minutes1_str = "0" + ofToString(minutes1);
-    else
-        minutes1_str = ofToString(minutes1);
-    
-    string seconds1_str;
-    
-    if (seconds1<10)
-        seconds1_str = "0" + ofToString(seconds1-minutes1*60);
-    else
-        seconds1_str = ofToString(seconds1);
-
-    return (minutes1_str + "m" + seconds1_str + "." + ofToString(miliseconds1)+"s");
-}
+//string ssPianoKeyboard::formatTimeMMSS(float durationInSec) {
+//    
+//    float seconds1,miliseconds1;
+//    
+//    miliseconds1 = (int) ((float) modf (durationInSec , &seconds1)*10);
+//    
+//    int   minutes1 = (int)seconds1/60;
+//    
+//    string minutes1_str;
+//    
+//    if (minutes1<10)
+//        minutes1_str = "0" + ofToString(minutes1);
+//    else
+//        minutes1_str = ofToString(minutes1);
+//    
+//    string seconds1_str;
+//    
+//    if (seconds1<10)
+//        seconds1_str = "0" + ofToString(seconds1-minutes1*60);
+//    else
+//        seconds1_str = ofToString(seconds1);
+//
+//    return (minutes1_str + "m" + seconds1_str + "." + ofToString(miliseconds1)+"s");
+//}
 

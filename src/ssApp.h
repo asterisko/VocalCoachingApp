@@ -28,7 +28,7 @@
 
 #include "ssAudioIOWrapper.h"
 
-#include "ssLoadFileThread.h"
+//#include "ssLoadFileThread.h"
 
 #include "ssPitchMeterWrapper.h"
 
@@ -74,8 +74,8 @@ class ssApp : public ofxiPhoneApp{
         void stopAudioIO();
 
         
-        void loadWAVfile(string filename);
-        void recordWAVfile(string filename);
+//        void loadWAVfile(string filename);
+//        void recordWAVfile(string filename);
 
         //////////////////////////////////////////////////////////////////////////////////
         // App Working Mode
@@ -145,8 +145,8 @@ class ssApp : public ofxiPhoneApp{
 
         int PlayFrameStamp;
     
-        ssLoadFileThread loadFileThread;
-        bool fileIsLoaded=false;
+//        ssLoadFileThread loadFileThread;
+//        bool fileIsLoaded=false;
     
         ssPitchMeterWrapper * pitchMeterWrapper;
     

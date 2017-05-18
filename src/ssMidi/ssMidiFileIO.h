@@ -26,7 +26,7 @@ public:
     void setTicksPerBeat(int _ticksPerBeat);
     void saveMidiFile(string filename);
     vector<char> computeMidiDeltaTime(long Nticks, long ticksPerBeat);
-    void createMidiFileForExistentWavFiles(void);
+//    void createMidiFileForExistentWavFiles(void);
 };
 
 
