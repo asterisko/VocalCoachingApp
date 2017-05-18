@@ -355,48 +355,6 @@ void ssPianoKeyboard::initGLPianoRollData(){
 ///////////////////////////////////////////////////////////
 // ssPianoKeyboard Rephresh Piano Bar GL data
 ///////////////////////////////////////////////////////////
-void ssPianoKeyboard::rephreshGLPianoRollData(){
-    // if (myApp->dbgMode) cout<< "in Update Method of ssPianoKeyboard" << endl;
-    
-    
-    float yiPitchMagnitudePlot = MAINPLOT_X;
-    float lengthPitchMagnitudePlot = MAINPLOT_H;
-    
-    float Wkey = Wkeyboard*1/(NKeys+1);
-    
-    
-    for ( int i = 0; i <= LAST_KEY - FIRST_KEY; i++) {
-        
-        float xiPitchMagnitudePlot = xi + (i)*Wkey;
-        
-        ofVec2f v;
-        
-        // Create Vertices Array
-        v.x = xiPitchMagnitudePlot + Wkey;            v.y = yiPitchMagnitudePlot + lengthPitchMagnitudePlot;  // x , y
-        v_pr.push_back(v);
-        v.x = xiPitchMagnitudePlot + Wkey;            v.y = yiPitchMagnitudePlot;         // x , y
-        v_pr.push_back(v);
-        v.x = xiPitchMagnitudePlot;                   v.y = yiPitchMagnitudePlot + lengthPitchMagnitudePlot;  // x , y
-        v_pr.push_back(v);
-        v.x = xiPitchMagnitudePlot;                   v.y = yiPitchMagnitudePlot;         // x , y
-        v_pr.push_back(v);
-    }
-
-    
-    VBO_pr_size = v_pr.size();
-    
-    VBO_pianoRoll.setVertexData(&v_pr[0], VBO_pr_size, GL_DYNAMIC_DRAW );
-    
-    // Free Memory
-    v_pr.clear();
-    v_pr.clear();
-    ind_pr.clear();
-}
-
-
-///////////////////////////////////////////////////////////
-// ssPianoKeyboard Rephresh Piano Bar GL data
-///////////////////////////////////////////////////////////
 void ssPianoKeyboard::rephreshGLFileBufferData(){
     // if (myApp->dbgMode) cout<< "in Update Method of ssPianoKeyboard" << endl;
     
@@ -548,7 +506,7 @@ void ssPianoKeyboard::drawPitchPowerPlot() {
             
 //            cout << "in condition 0: pos = " << pos << "    |  size = " << myApp->pitchMeterWrapper->midiNotes->notePower.size() << "    |   transp factor = " << roundSIL(ofMap(pos, (int)myApp->pitchMeterWrapper->midiNotes->notePower.size(), (int)myApp->pitchMeterWrapper->midiNotes->notePower.size() - 10, 0, 255), 0) << endl;
             
-            ofSetColor(240, 230, 15, roundSIL(ofMap(pos, (int)myApp->pitchMeterWrapper->midiNotes->notePower.size(), (int)myApp->pitchMeterWrapper->midiNotes->notePower.size() - 10, 0, 255), 0));
+            ofSetColor(255, 255, 0, roundSIL(ofMap(pos, (int)myApp->pitchMeterWrapper->midiNotes->notePower.size(), (int)myApp->pitchMeterWrapper->midiNotes->notePower.size() - 10, 0, 255), 0));
         }
         else if (pos >= (int)myApp->pitchMeterWrapper->midiNotes->notePower.size() - min_fade_time) { // dots drawn less than 0.5 seconds ago
             
@@ -556,7 +514,7 @@ void ssPianoKeyboard::drawPitchPowerPlot() {
             
             // yellow:  rgb(255, 255, 0)
             // green:   rgb( 30, 180, 50)
-            ofSetColor(roundSIL(ofMap(pos, (int)myApp->pitchMeterWrapper->midiNotes->notePower.size() - 10, (int)myApp->pitchMeterWrapper->midiNotes->notePower.size() - min_fade_time, 255, 30), 0), roundSIL(ofMap(pos, (int)myApp->pitchMeterWrapper->midiNotes->notePower.size() - 10, (int)myApp->pitchMeterWrapper->midiNotes->notePower.size() - min_fade_time, 255, 180), 0), roundSIL(ofMap(pos, (int)myApp->pitchMeterWrapper->midiNotes->notePower.size() - 10, (int)myApp->pitchMeterWrapper->midiNotes->notePower.size() - min_fade_time, 0, 50), 0));
+            ofSetColor(roundSIL(ofMap(pos, (int)myApp->pitchMeterWrapper->midiNotes->notePower.size() - 10, (int)myApp->pitchMeterWrapper->midiNotes->notePower.size() - min_fade_time, 255, 30), 0),roundSIL(ofMap(pos, (int)myApp->pitchMeterWrapper->midiNotes->notePower.size() - 10, (int)myApp->pitchMeterWrapper->midiNotes->notePower.size() - min_fade_time, 255, 180), 0), roundSIL(ofMap(pos, (int)myApp->pitchMeterWrapper->midiNotes->notePower.size() - 10, (int)myApp->pitchMeterWrapper->midiNotes->notePower.size() - min_fade_time, 0, 50), 0));
         }
         else if (pos < (int)myApp->pitchMeterWrapper->midiNotes->notePower.size() - min_fade_time && pos > (int)myApp->pitchMeterWrapper->midiNotes->notePower.size() - max_fade_time) { // dots drawn between 0.5 and 10 seconds ago
 

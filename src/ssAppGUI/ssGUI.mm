@@ -20,19 +20,15 @@ ssGUI::ssGUI(int _plotBuffer_size) {
     //////////////////////////////////////////////////////////////////////////////////
     
     piano_xi = 0;
-//    piano_yi = PLOTS_Y;
     piano_yi = PLOTS_H;
     piano_kwidth = ofGetWidth();
     piano_kheight = 0.12*APP_HEIGHT;
-    //piano_kheight = PLOTS_X*1.6;
-//    piano_kheight = ofGetWidth();
-//    piano_kwidth = PLOTS_X;
 
     piano = new ssPianoKeyboard(TplotBuffer_size);
     piano->init(piano_xi, piano_yi , piano_kwidth , piano_kheight);
     
     addTplotGUI();
-    addCpanelGUI();
+//    addCpanelGUI();
     
     updateCueBarPosition(0.0);
 
@@ -49,8 +45,8 @@ ssGUI::~ssGUI() {
     tplotGUI->saveSettings("GUI/tplotGUISettings.xml");
 
     delete tplotGUI;
-    delete cpanelGUICanvas4;
-    delete cpanelGUICanvas4b;
+//    delete cpanelGUICanvas4;  agora4
+//    delete cpanelGUICanvas4b;  agora4b
     delete [] TplotBuffer;
     //delete touchDragObj;
     delete piano;
@@ -64,7 +60,8 @@ void ssGUI::addTplotGUI()
     ///////////////////////////////////////////////////////////
     // ADD Time Domain Plot Canvas
     ///////////////////////////////////////////////////////////
-    tplotGUI = new ofxUICanvas(PLOTS_X,PLOTS_Y,PLOTS_W + 4*PLOTS_DIM ,PLOTS_H+4*PLOTS_DIM);
+//    tplotGUI = new ofxUICanvas(PLOTS_X,PLOTS_Y,PLOTS_W + 4*PLOTS_DIM ,PLOTS_H+4*PLOTS_DIM);
+    tplotGUI = new ofxUICanvas(40,PLOTS_Y - 100, PLOTS_W + 4*PLOTS_DIM,PLOTS_H+4*PLOTS_DIM);
 
     ///////////////////////////////////////////////////////////
     // ADD WAV RANGE SLIDER
@@ -102,29 +99,29 @@ void ssGUI::addTplotGUI()
 ///////////////////////////////////////////////////////////
 // ADD Control Panel
 ///////////////////////////////////////////////////////////
-void ssGUI::addCpanelGUI()
-{
-    ///////////////////////////////////////////////////////////
-    // BOTTOM CANVAS WITH CONTROLS
-    ///////////////////////////////////////////////////////////
-    cpanelGUICanvas4 = new ofxUICanvas(CPANEL_X + PLOTS_X                  , PLOTS_Y + 204 , CPANEL_DIM*9   , CPANEL_H);
-    cpanelGUICanvas4b = new ofxUICanvas(CPANEL_X + PLOTS_X + CPANEL_DIM*3.3, PLOTS_Y + 204 , CPANEL_DIM*9   , CPANEL_H);
-    cpanelGUICanvas5 = new ofxUICanvas(CPANEL_X + PLOTS_X + CPANEL_DIM*5  , PLOTS_Y + 204 , CPANEL_DIM*19   , CPANEL_H);
-
-    cpanelGUICanvas4->addWidgetRight(new ofxUILabel("Midi: ", OFX_UI_FONT_LARGE));
-
-    instName = new ofxUILabel("Piano", OFX_UI_FONT_LARGE);
-    cpanelGUICanvas4->addWidgetRight(instName);
-    
-    timeStr = new ofxUILabel("", OFX_UI_FONT_LARGE);
-    cpanelGUICanvas5->addWidgetRight(timeStr);
-    cpanelGUICanvas4->setDrawBack(false);
-    cpanelGUICanvas4->setDrawPadding(false);
-    cpanelGUICanvas4b->setDrawBack(false);
-    cpanelGUICanvas4b->setDrawPadding(false);
-    cpanelGUICanvas5->setDrawBack(false);
-    cpanelGUICanvas5->setDrawPadding(false);
-}
+//void ssGUI::addCpanelGUI()
+//{
+//    ///////////////////////////////////////////////////////////
+//    // BOTTOM CANVAS WITH CONTROLS
+//    ///////////////////////////////////////////////////////////
+////    cpanelGUICanvas4 = new ofxUICanvas(CPANEL_X + PLOTS_X                  , PLOTS_Y + 204 , CPANEL_DIM*9   , CPANEL_H);  agora4
+////    cpanelGUICanvas4b = new ofxUICanvas(CPANEL_X + PLOTS_X + CPANEL_DIM*3.3, PLOTS_Y + 204 , CPANEL_DIM*9   , CPANEL_H);  agora4b
+////    cpanelGUICanvas5 = new ofxUICanvas(CPANEL_X + PLOTS_X + CPANEL_DIM*5  , PLOTS_Y + 204 , CPANEL_DIM*19   , CPANEL_H); agora5
+//
+////    cpanelGUICanvas4->addWidgetRight(new ofxUILabel("Midi: ", OFX_UI_FONT_LARGE));
+////
+////    instName = new ofxUILabel("Piano", OFX_UI_FONT_LARGE);
+////    cpanelGUICanvas4->addWidgetRight(instName);
+//    
+//    timeStr = new ofxUILabel("", OFX_UI_FONT_LARGE);
+////    cpanelGUICanvas5->addWidgetRight(timeStr); agora5
+////    cpanelGUICanvas4->setDrawBack(false); agora4
+////    cpanelGUICanvas4->setDrawPadding(false); agora4
+////    cpanelGUICanvas4b->setDrawBack(false); agora4b
+////    cpanelGUICanvas4b->setDrawPadding(false); agora4b
+////    cpanelGUICanvas5->setDrawBack(false); agora5
+////    cpanelGUICanvas5->setDrawPadding(false); agora5
+//}
 
 ///////////////////////////////////////////////////////////
 // Update CueBar
@@ -211,15 +208,6 @@ void ssGUI::updateTplotBuffer(TmpFile *tmpFile,int posicao, int tamanho)
 
     delete[] aux; // Free memory to prevent disastrous memory allocation
 }
-
-//void ssGUI::rephreshGLData(void){
-//    
-//    piano->rephreshGLPianoRollData();
-//    if (myApp->appWorkingMode==PLAY_MODE) {
-////        piano->rephreshGLPitchNotesData();
-//        piano->rephreshGLPitchPlotData();
-//        }
-//}
 
 
 ///////////////////////////////////////////////////////////
@@ -338,15 +326,4 @@ void ssGUI::guiEvent(ofxUIEventArgs &e) {
 void ssGUI::draw(){
     //if (myApp->dbgMode) cout << "in ssGUI draw method------------------------------------------------------------" << endl;
 
-}
-
-void ssGUI::listDocumentsDirectory(void){
-    // List Documents Directory Files
-    dir = new ofDirectory(ofxiPhoneGetDocumentsDirectory());
-    dir->allowExt("wav");
-    dir->sort();
-    dir->listDir();
-    for (int i = 0; i < dir->numFiles(); i++){
-        if (myApp->dbgMode) cout << "File: " << dir->getPath(i) << endl;
-    }
 }

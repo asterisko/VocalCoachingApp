@@ -57,8 +57,6 @@ public:
 
     void initGLPianoRollData();
     
-    void rephreshGLPianoRollData();
-    
     void drawKeyboardAndPianoRoll_Optimized(float xiPitchPlot, float widthPitchPlot);
     
     // ANDRE PLOT

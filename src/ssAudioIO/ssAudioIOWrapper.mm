@@ -46,28 +46,6 @@ OSStatus renderCallback(void *userData, AudioUnitRenderActionFlags *actionFlags,
             
         myApp->audioInCallBack(convertedSampleBuffer, numFrames, 1);
         }
-   
-    /////////////////////////////////////////////////////////
-    // AUDIO OUTPUT CALLBACK
-    /////////////////////////////////////////////////////////
-//    if (myApp->appStateMachine->execState == STATE_PLAYING)
-//        {
-//        // Now we have floating point sample data from the render callback! We
-//        // can send it along for further processing, for example:
-//        // plugin->processReplacing(convertedSampleBuffer, NULL, sampleFrames);
-//            
-//        myApp->audioOutCallBack(convertedSampleBuffer, numFrames, 1);
-//
-//        // Assuming that you have processed in place, we can now write the
-//        // floating point data back to the input buffer.
-//        for(int i = 0; i < numFrames; i++) {
-//            // Note that we multiply by 32767 here, NOT 32768. This is to avoid
-//            // overflow errors (and thus clipping).
-//            inputFrames[i] = (SInt16)(convertedSampleBuffer[i] * 32767.0f);
-//            }
-//        }
-//    
-//    return noErr;
 }
 
 ssAudioIOWrapper::ssAudioIOWrapper() {

@@ -30,7 +30,8 @@
 #define PLOTS_X     (0.10*APP_WIDTH + OFX_UI_GLOBAL_WIDGET_SPACING)
 #define PLOTS_Y     50 + OFX_UI_GLOBAL_WIDGET_SPACING
 #define PLOTS_W     (1.00*APP_WIDTH - PLOTS_X - 0.06*APP_WIDTH)
-#define PLOTS_H     (0.3*APP_HEIGHT)
+//#define PLOTS_H     (0.3*APP_HEIGHT)
+#define PLOTS_H     (0.25*APP_HEIGHT)
 #define PLOT_T_H    (0.19*APP_HEIGHT)
 #define PLOT_F_H    (0.10*APP_HEIGHT)
 #define OFFSET_X     OFX_UI_GLOBAL_WIDGET_SPACING                // in pixels

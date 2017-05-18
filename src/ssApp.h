@@ -39,7 +39,6 @@ class ssApp : public ofxiPhoneApp{
         DEBUG_MODE dbgMode = RELEASE;
 
         ssApp();
-        ssApp(string _filename);
         ~ssApp();
         //////////////////////////////////////////////////////////////////////////////////
         // APP methods
@@ -67,7 +66,6 @@ class ssApp : public ofxiPhoneApp{
         //double getPowerFromFrame(PitchMeter * pm, float *input, int _bufferSize); // ANDRE (ver se é necessário)
         float getPitchFromFrame(PitchMeter * pm, float *input, int _bufferSize);
         void audioInCallBack(float *input, int _bufferSize, int nChannels);
-        void audioOutCallBack(float *output, int _bufferSize, int _nChannels);
     
         void startPlayback();
         void startRecording();
@@ -90,10 +88,10 @@ class ssApp : public ofxiPhoneApp{
         int                 sampleRate;         // Audio I/O samplerate
         int                 bufferSize;         // Audio I/O buffersize
 
-        string              loadFileName;
-        string              recFileName;
-        ssWavIO           * wavFile;
-        ssWavIO           * recFile;
+//        string              loadFileName;
+//        string              recFileName;
+//        ssWavIO           * wavFile;
+//        ssWavIO           * recFile;
         TmpFile           * tmpFile;
         ofSoundStream       IOSoundStream;
         ssAudioIOWrapper    AudioIO;

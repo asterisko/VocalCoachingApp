@@ -29,7 +29,6 @@
 		095440031E71A189008A4B72 /* ssGUI.mm in Sources */ = {isa = PBXBuildFile; fileRef = 09543FF01E71A189008A4B72 /* ssGUI.mm */; };
 		095440041E71A189008A4B72 /* ssPianoKey.mm in Sources */ = {isa = PBXBuildFile; fileRef = 09543FF21E71A189008A4B72 /* ssPianoKey.mm */; };
 		095440051E71A189008A4B72 /* ssPianoKeyboard.mm in Sources */ = {isa = PBXBuildFile; fileRef = 09543FF41E71A189008A4B72 /* ssPianoKeyboard.mm */; };
-		095440061E71A189008A4B72 /* ssAppNativeGUIView.mm in Sources */ = {isa = PBXBuildFile; fileRef = 09543FF71E71A189008A4B72 /* ssAppNativeGUIView.mm */; };
 		095440101E71A3AF008A4B72 /* FFTAccelerate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 0954400F1E71A3AF008A4B72 /* FFTAccelerate.mm */; };
 		095440271E71A81A008A4B72 /* PitchMeter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0954401B1E71A81A008A4B72 /* PitchMeter.cpp */; };
 		095440281E71A81A008A4B72 /* segment.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0954401D1E71A81A008A4B72 /* segment.cpp */; };
@@ -140,8 +139,6 @@
 		09543FF21E71A189008A4B72 /* ssPianoKey.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = ssPianoKey.mm; sourceTree = "<group>"; };
 		09543FF31E71A189008A4B72 /* ssPianoKeyboard.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ssPianoKeyboard.h; sourceTree = "<group>"; };
 		09543FF41E71A189008A4B72 /* ssPianoKeyboard.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = ssPianoKeyboard.mm; sourceTree = "<group>"; };
-		09543FF61E71A189008A4B72 /* ssAppNativeGUIView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ssAppNativeGUIView.h; sourceTree = "<group>"; };
-		09543FF71E71A189008A4B72 /* ssAppNativeGUIView.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = ssAppNativeGUIView.mm; sourceTree = "<group>"; };
 		0954400E1E71A3AF008A4B72 /* FFTAccelerate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FFTAccelerate.h; sourceTree = "<group>"; };
 		0954400F1E71A3AF008A4B72 /* FFTAccelerate.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = FFTAccelerate.mm; sourceTree = "<group>"; };
 		095440171E71A81A008A4B72 /* common.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = common.h; sourceTree = "<group>"; };
@@ -382,15 +379,6 @@
 			path = ssAppGUI;
 			sourceTree = "<group>";
 		};
-		09543FF51E71A189008A4B72 /* ssAppNativeGui */ = {
-			isa = PBXGroup;
-			children = (
-				09543FF61E71A189008A4B72 /* ssAppNativeGUIView.h */,
-				09543FF71E71A189008A4B72 /* ssAppNativeGUIView.mm */,
-			);
-			path = ssAppNativeGui;
-			sourceTree = "<group>";
-		};
 		0954400D1E71A3AF008A4B72 /* FFT */ = {
 			isa = PBXGroup;
 			children = (
@@ -623,7 +611,6 @@
 				09543FD61E71A189008A4B72 /* MidiApp */,
 				09543FD91E71A189008A4B72 /* NativeUIKit */,
 				09543FEC1E71A189008A4B72 /* ssAppGUI */,
-				09543FF51E71A189008A4B72 /* ssAppNativeGui */,
 				09543FC71E71A126008A4B72 /* ssMidi */,
 				09543FC21E71A126008A4B72 /* ssAudioIO */,
 				09543FBE1E71A10C008A4B72 /* UIKITwrapers */,
@@ -800,7 +787,6 @@
 				09543FF81E71A189008A4B72 /* MidiApp.mm in Sources */,
 				A8D498EA173BEC3000865E45 /* tinyxml.cpp in Sources */,
 				09543FA11E719F5A008A4B72 /* ofPanGestureRecognizer.m in Sources */,
-				095440061E71A189008A4B72 /* ssAppNativeGUIView.mm in Sources */,
 				A8D498EB173BEC3000865E45 /* tinyxmlerror.cpp in Sources */,
 				A8D498EC173BEC3000865E45 /* tinyxmlparser.cpp in Sources */,
 				095440291E71A81A008A4B72 /* statseg.cpp in Sources */,

@@ -53,9 +53,9 @@ public:
 //    ofxUICanvas             * cpanelGUICanvas;
 //    ofxUICanvas             * cpanelGUICanvas2;
 //    ofxUICanvas             * cpanelGUICanvas3;
-    ofxUICanvas             * cpanelGUICanvas4;
-    ofxUICanvas             * cpanelGUICanvas4b;
-    ofxUICanvas             * cpanelGUICanvas5;
+//    ofxUICanvas             * cpanelGUICanvas4; agora4
+//    ofxUICanvas             * cpanelGUICanvas4b;  agora4b
+//    ofxUICanvas             * cpanelGUICanvas5; agora5
 
     // Pointers to Objects accessed from other classes
     ofxUIRangeSlider        * zoom_sliderH;
@@ -114,20 +114,15 @@ public:
     ///////////////////////////////////////////////////////////
     // ADD Pitch Plot GUI
     ///////////////////////////////////////////////////////////
-    void addPplotGUI();
+//    void addPplotGUI();
     ///////////////////////////////////////////////////////////
     // ADD Control Panel
     ///////////////////////////////////////////////////////////
-    void addCpanelGUI();
+//    void addCpanelGUI();
     ///////////////////////////////////////////////////////////
     // Draw Routine
     ///////////////////////////////////////////////////////////
     void draw();	// called every frame to draw object
-    
-    ///////////////////////////////////////////////////////////
-    // Other Methods
-    ///////////////////////////////////////////////////////////
-    void listDocumentsDirectory(void);
     
 
 };
