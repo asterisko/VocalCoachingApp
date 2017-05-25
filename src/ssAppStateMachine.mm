@@ -73,8 +73,9 @@ void ssAppStateMachine::setNewExecState(EXEC_STATE newState){
                                             case STATE_RECORDING        :   break;
                                             case STATE_RECORDING_PAUSE  :   myApp->startRecording();
                                                                             break;
-                                            case STATE_IDLE             :   float sliderMin = myApp->ssGui->zoom_sliderH->getScaledValueLow();
-                                                                            myApp->ssGui->updatePlotsData(sliderMin , sliderMin + PLOT_BUFFER_DURATION);
+                                            case STATE_IDLE             :
+//                                                                            float sliderMin = myApp->ssGui->zoom_sliderH->getScaledValueLow();
+//                                                                            myApp->ssGui->updatePlotsData(sliderMin , sliderMin + PLOT_BUFFER_DURATION);
                                                 
                                                                         //  myApp->pitchMeterWrapper->midiNotes->~ssComputeMidiNotes();
                                                                         //  myApp->pitchMeter->~PitchMeter();
@@ -121,12 +122,12 @@ void ssAppStateMachine::setNewExecState(EXEC_STATE newState){
 void ssAppStateMachine :: update(void) {
 //    if (myApp->dbgMode) cout << "in ssAppStateMachine::update" << endl;
     
-    float timeActual    = ofGetElapsedTimef();
-    float timeDiff      = timeActual - timeBefore;
-    float sliderMin     = myApp->ssGui->zoom_sliderH->getScaledValueLow();
-    float sliderMax     = myApp->ssGui->zoom_sliderH->getScaledValueHigh();
-    float sliderLengthHalf = (sliderMax - sliderMin)/2;
-    float sliderCenter  = sliderMin + sliderLengthHalf;
+//    float timeActual    = ofGetElapsedTimef();
+//    float timeDiff      = timeActual - timeBefore;
+//    float sliderMin     = myApp->ssGui->zoom_sliderH->getScaledValueLow();
+//    float sliderMax     = myApp->ssGui->zoom_sliderH->getScaledValueHigh();
+//    float sliderLengthHalf = (sliderMax - sliderMin)/2;
+//    float sliderCenter  = sliderMin + sliderLengthHalf;
 
     //////////////////////////////////////////////////////////////////////////////////
     // 1) Update STATE in RunTime
@@ -175,36 +176,4 @@ void ssAppStateMachine :: update(void) {
     
     myApp->ssGui->updateCueBarPosition(percent);
 }
-
-
-//void ssAppStateMachine::savePlayingContext(void)
-//{
-//    FRAME.Begin  = FRAME.Start;
-//    FRAME.End    = FRAME.Stop;
-//    
-//}
-//
-//void ssAppStateMachine::restorePlayingContext(void)
-//{
-//    FRAME.Start = FRAME.Begin;
-//    FRAME.Stop = FRAME.End;
-//    
-//    myApp->ssGui->zoom_sliderH->setValueLow(convFram2Sec(FRAME.Start));
-//    myApp->ssGui->zoom_sliderH->setValueHigh(convFram2Sec(FRAME.Stop));
-//    
-//    myApp->ssGui->updatePlotsData(convFram2Sec(FRAME.Start), convFram2Sec(FRAME.Stop));
-//
-//}
-//
-//void ssAppStateMachine::showAlertAndRecordFile(void)
-//{
-//    // ofxiPhoneAlertView //
-//    // setup the list of buttons
-//    vector<string> otherButtons;
-//    // the args are: title, message, cancel button title ("" == omitted), vector of other button titles
-//    alert = new ofxiPhoneAlertView("","You must enter a filename: ","OK",otherButtons);
-//    // display the alert view
-//    alert->show();
-//    // end of alert view setup
-//}
 

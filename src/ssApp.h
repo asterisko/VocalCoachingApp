@@ -143,6 +143,8 @@ class ssApp : public ofxiPhoneApp{
 
         int PlayFrameStamp;
     
+        int heightNavController;
+    
 //        ssLoadFileThread loadFileThread;
 //        bool fileIsLoaded=false;
     

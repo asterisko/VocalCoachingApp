@@ -224,7 +224,8 @@ float ssPianoKeyboard::midi2pixelX(float midi){
 
 float ssPianoKeyboard::power2pixelY(float power) {
     
-    return roundSIL(ofMap(power, MIN_POWER, MAX_POWER, MAINPLOT_X + MAINPLOT_H, MAINPLOT_X), 0);
+//    return roundSIL(ofMap(power, MIN_POWER, MAX_POWER, MAINPLOT_X + MAINPLOT_H, MAINPLOT_X), 0);
+    return roundSIL(ofMap(power, MIN_POWER, MAX_POWER, APP_HEIGHT - myApp->heightNavController, MAINPLOT_X), 0);
 }
 
 
@@ -245,7 +246,9 @@ void ssPianoKeyboard::draw(){
     //if (myApp->dbgMode) cout<< "in Draw Method of ssPianoKeyboard" << endl;
     
     float yiPitchMagnitudePlot = MAINPLOT_X;
-    float lengthPitchMagnitudePlot = MAINPLOT_H;
+//    float lengthPitchMagnitudePlot = MAINPLOT_H;
+    float lengthPitchMagnitudePlot = APP_HEIGHT - MAINPLOT_X - myApp->heightNavController;
+//    float lengthPitchMagnitudePlot = myApp->heightNavController;
     
     //////////////////////////////////////////
     // Draw Keyboard + PIANO ROLL
@@ -254,8 +257,8 @@ void ssPianoKeyboard::draw(){
     drawKeyboardAndPianoRoll_Optimized(yiPitchMagnitudePlot,lengthPitchMagnitudePlot);       // Decrease to 15fps
     
     if (myApp->appWorkingMode==RECORD_MODE) {
-        if(myApp->pitchMeterWrapper->midiNotes->notePower.size() > 0) // FOR DEBUGGING
-            printMatrix();
+//        if(myApp->pitchMeterWrapper->midiNotes->notePower.size() > 0) // FOR DEBUGGING
+//            printMatrix();
         drawPitchPowerPlot();
     }
     else if (myApp->appWorkingMode == PLAY_MODE) {
@@ -292,7 +295,8 @@ void ssPianoKeyboard::initGLPianoRollData(){
     // if (myApp->dbgMode) cout<< "in Update Method of ssPianoKeyboard" << endl;
     
     float yiPitchMagnitudePlot = MAINPLOT_X;
-    float lengthPitchMagnitudePlot = MAINPLOT_H;
+//    float lengthPitchMagnitudePlot = MAINPLOT_H;
+    float lengthPitchMagnitudePlot = APP_HEIGHT - MAINPLOT_X - myApp->heightNavController;
     
     float Wkey = Wkeyboard*1/(NKeys+1);
     
@@ -405,20 +409,28 @@ void ssPianoKeyboard::drawKeyboardAndPianoRoll_Optimized(float yiPitchMagnitudeP
     
     float Wkey = Wkeyboard*1/(NKeys+1);
     
+//    float Wkey = Wkeyboard/NKeys;
+    
     //////////////////////////////////////////////////
     // Draw Piano Roll
     //////////////////////////////////////////////////
-    VBO_pianoRoll.drawElements(GL_TRIANGLE_STRIP, VBO_pr_size);
+//    VBO_pianoRoll.drawElements(GL_TRIANGLE_STRIP, VBO_pr_size);
     
     for (int i=0;i<midiScale.size(); i++) {
         ////////////////////////////////////
         // Draw PianoRoll Split Notes Bar
         ////////////////////////////////////
-        ofSetColor(0,0,0,30);
-//        ofSetColor(255,255,255,255);
+        Wkey = Wkeyboard*1/(NKeys+1);
+//        ofSetColor(0,0,0,30);
+        ofSetColor(255,255,255,100);
         ofSetLineWidth(2.0);
 //        ofLine( xiPitchMagnitudePlot ,yi + Wkeyboard - (i+1)*Wkey, xiPitchMagnitudePlot + widthPitchMagnitudePlot, yi + Wkeyboard - (i+1)*Wkey);
         ofLine( xi + Wkey*(i+1) ,yiPitchMagnitudePlot, xi + Wkey*(i+1), yiPitchMagnitudePlot + lengthPitchMagnitudePlot);
+        
+        ofSetColor(255,0,0,100);
+        Wkey = Wkeyboard/NKeys;
+        ofLine( xi + Wkey*(i+1) ,yiPitchMagnitudePlot, xi + Wkey*(i+1), yiPitchMagnitudePlot + lengthPitchMagnitudePlot);
+        
         ofSetLineWidth(1.0);
         
         // Draw Frequency String
@@ -468,6 +480,7 @@ void ssPianoKeyboard::drawPitchPowerPlot() {
     drawPowerLines();
     
     ofFill();
+    
     int dotRadius = DOT_RADIUS;
     
     int min_fade_time = MIN_FADE_TIME;
@@ -482,14 +495,16 @@ void ssPianoKeyboard::drawPitchPowerPlot() {
 //        cout << "x = " << x_pixel_pos << "  |   y = " << y_pixel_pos << endl;
         
         // STORING DOTS IN THE MATRIX
-        if ((pos > previousSizePowerVector) && x_pixel_pos >= 0 && x_pixel_pos <= APP_WIDTH && y_pixel_pos >= MAINPLOT_X && y_pixel_pos <= MAINPLOT_X + MAINPLOT_H) {
+//        if ((pos > previousSizePowerVector) && x_pixel_pos >= 0 && x_pixel_pos <= APP_WIDTH && y_pixel_pos >= MAINPLOT_X && y_pixel_pos <= MAINPLOT_X + MAINPLOT_H) {
+        if ((pos > previousSizePowerVector) && x_pixel_pos >= 0 && x_pixel_pos <= APP_WIDTH && y_pixel_pos >= MAINPLOT_X && y_pixel_pos <= APP_HEIGHT - myApp->heightNavController) {
             
 //            int columnIndex = ceil(x_pixel_pos*N_COLS/APP_WIDTH);
 //            int rowIndex = ceil(y_pixel_pos*((int)N_ROWS)/(MAINPLOT_X + MAINPLOT_H));
 
             int columnIndex = ceil(ofMap(x_pixel_pos, 0, APP_WIDTH, 0, N_COLS));
-            int rowIndex = ceil(ofMap(y_pixel_pos, MAINPLOT_X, MAINPLOT_H + MAINPLOT_X, 0, N_ROWS));
-            
+//            int rowIndex = ceil(ofMap(y_pixel_pos, MAINPLOT_X, MAINPLOT_H + MAINPLOT_X, 0, N_ROWS));
+            int rowIndex = ceil(ofMap(y_pixel_pos, MAINPLOT_X, APP_HEIGHT - myApp->heightNavController, 0, N_ROWS));
+
             cout << "pos = " << pos << "    |   x = " << x_pixel_pos << "   |   y = " << y_pixel_pos << "   |   column index: " << columnIndex << "   |   row index: " << rowIndex << endl;
             
             dotsMatrix[(columnIndex-1) + (rowIndex-1)*N_COLS]++;
@@ -527,6 +542,11 @@ void ssPianoKeyboard::drawPitchPowerPlot() {
         }
         
         ofCircle(x_pixel_pos, y_pixel_pos, dotRadius);
+//        ofNoFill();
+//        ofSetColor(200, 200, 0);
+//        ofCircle(x_pixel_pos, y_pixel_pos, dotRadius + 10);
+//        ofFill();
+//        ofDrawSphere(x_pixel_pos, y_pixel_pos, 10, dotRadius + 20);
     }
     
     
@@ -592,6 +612,7 @@ void ssPianoKeyboard::drawRegionsPlot() {
             
 //            ofSetColor(255, 255, 255, ofMap(dotsMatrix[i], 0, myApp->pitchMeterWrapper->midiNotes->midiNoteData.size(), 0, 255));
             ofSetColor(255, 255, 255, ofMap(dotsMatrix[i], 0, maxDots, 0, 255));
+//            ofSetColor(237, 0, 0, ofMap(dotsMatrix[i], 0, maxDots, 0, 255));
             ofRect((i%N_COLS)*SQUARE_GRANULARITY, MAINPLOT_X + (int)((i/N_COLS)*SQUARE_GRANULARITY), SQUARE_GRANULARITY, SQUARE_GRANULARITY);
             
             cout << "x = " << (i%N_COLS)*SQUARE_GRANULARITY << "     |       y = " << (int)(MAINPLOT_X + (i/N_COLS)*SQUARE_GRANULARITY) << "    |   column index: " << i%N_COLS << "    |   row index: " << i/N_COLS << endl;

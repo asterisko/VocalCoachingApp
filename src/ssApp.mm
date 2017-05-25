@@ -72,6 +72,10 @@ void ssApp::setup(){
     //ofSetOrientation(OF_ORIENTATION_90_LEFT); // ANDRE orientation
     
     setAppBackgroundColor();
+    
+    heightNavController = vcAppDelegatePNT.navigationController.navigationBar.frame.size.height;
+    
+    cout << "height controls bar = " << heightNavController << endl;
 
 //    ofSetVerticalSync(true);
     
@@ -143,7 +147,7 @@ void ssApp::setup(){
     
 //    bkg.loadImage("DSGNbkg.png");
     
-    bkg.loadImage("/Users/vocalcoach/Documents/OpenFrameworks/of_v0.9.8_ios_release_WORKING VERSION_modificada/apps/myApps/SingingStudio_16_05/Resources/bin/data/DSGNbkg.png"); // PROBLEMA
+    bkg.loadImage("/Users/vocalcoach/Documents/OpenFrameworks/of_v0.9.8_ios_release_WORKING VERSION_modificada/apps/myApps/SingingStudio_24_05/Resources/bin/data/DSGNbkg.png"); // PROBLEMA
     
 //    cout << appWorkingMode << endl;
 

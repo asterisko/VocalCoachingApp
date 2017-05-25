@@ -59,7 +59,7 @@ void ssDragGestureRecognizer :: update (ofTouchEventArgs & touch) {
         if (touch.numTouches==1) {
             if (!myApp->recogPintch->pinching)  {
                 float diff_x    = touch.x - touch1.x;        // Computes differential change in x
-                myApp->ssGui->moveX_tplot(diff_x);
+//                myApp->ssGui->moveX_tplot(diff_x);
 
                 float diff_y    = touch.y - touch1.y;        // Computes differential change in y
 //                myApp->ssGui->piano->moveY_pplot(diff_y);

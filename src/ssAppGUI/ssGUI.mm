@@ -52,6 +52,7 @@ ssGUI::~ssGUI() {
     delete piano;
 }
 
+
 ///////////////////////////////////////////////////////////
 // ADD Time Domain GUI
 ///////////////////////////////////////////////////////////
@@ -60,40 +61,31 @@ void ssGUI::addTplotGUI()
     ///////////////////////////////////////////////////////////
     // ADD Time Domain Plot Canvas
     ///////////////////////////////////////////////////////////
-//    tplotGUI = new ofxUICanvas(PLOTS_X,PLOTS_Y,PLOTS_W + 4*PLOTS_DIM ,PLOTS_H+4*PLOTS_DIM);
-    tplotGUI = new ofxUICanvas(40,PLOTS_Y - 100, PLOTS_W + 4*PLOTS_DIM,PLOTS_H+4*PLOTS_DIM);
+    tplotGUI = new ofxUICanvas(PLOTS_X,PLOTS_Y,PLOTS_W + 4*PLOTS_DIM ,PLOTS_H+4*PLOTS_DIM);
 
     ///////////////////////////////////////////////////////////
     // ADD WAV RANGE SLIDER
     ///////////////////////////////////////////////////////////
-    zoom_sliderH= new ofxUIRangeSlider("zoom_sliderH", 0.0, 1.0, 50.0, 100.0, PLOTS_W , PLOTS_DIM);
-    zoom_sliderH->setLabelVisible(false);
-   // zoom_sliderH->setVisible(false);
-    tplotGUI->addWidgetRight(zoom_sliderH);
+//    zoom_sliderH= new ofxUIRangeSlider("zoom_sliderH", 0.0, 1.0, 50.0, 100.0, PLOTS_W , PLOTS_DIM);
+//    zoom_sliderH->setLabelVisible(false);
+//   // zoom_sliderH->setVisible(false);
+//    tplotGUI->addWidgetRight(zoom_sliderH);
     
     ///////////////////////////////////////////////////////////
     // ADD WAVFORM PLOT
     ///////////////////////////////////////////////////////////
     tplot = new ofxUIWaveform(PLOTS_W, PLOT_T_H, TplotBuffer, TplotBuffer_size, -1.0, 1.0, "plot_time");
+
     tplotGUI->addWidgetDown(tplot);
-    
-////    zoom_sliderV = new ofxUIImageSlider(PLOT_T_H,PLOTS_DIM, 1.0, 5.0, tplotGain, "GUI/slider_.png", "zoom_sliderV");
-//    zoom_sliderV= new ofxUISlider("zoom_sliderV", 1.0, 5.0, tplotGain, PLOTS_DIM,PLOT_T_H);
-//    zoom_sliderV->setLabelVisible(false);
-//    tplotGUI->addWidgetRight(zoom_sliderV);
-    
+
+
     cout << "in addTplotGUI()" << endl;
     
-    ///////////////////////////////////////////////////////////
-    // ADD Frequency Plot
-    ///////////////////////////////////////////////////////////
-//FFT    fplot = new ofxUIWaveform(PLOTS_W, PLOT_F_H, myApp->fftBufferOUT, myApp->Nfft/2, 0.0f, -100.0f, "plot_frequency");
-    //   tplotGUI->addWidgetDown(fplot);
     
     tplotGUI->setDrawBack(false);
     tplotGUI->setDrawPadding(false);
     
-    ofAddListener(tplotGUI->newGUIEvent,this,&ssGUI::guiEvent);
+//    ofAddListener(tplotGUI->newGUIEvent,this,&ssGUI::guiEvent);
 }
 
 ///////////////////////////////////////////////////////////
@@ -138,26 +130,26 @@ void ssGUI::updatePlotsData(float valueLow, float valueHigh){
     float tdiff = abs(valueHigh - valueLow);
 
     // Adjust to Min and Max Zoom Values
-    if (tdiff > ZOOM_MAX_TIME ) {
-        tdiff = ZOOM_MAX_TIME;
-        if (zoom_sliderH->hitHigh==true)
-            valueLow = valueHigh - ZOOM_MAX_TIME;
-        }
-    
-    if (tdiff < ZOOM_MIN_TIME ) {
-        tdiff = ZOOM_MIN_TIME;
-        if (zoom_sliderH->hitHigh==true)
-            valueLow = valueHigh - ZOOM_MIN_TIME;
-        }
+//    if (tdiff > ZOOM_MAX_TIME ) {
+//        tdiff = ZOOM_MAX_TIME;
+//        if (zoom_sliderH->hitHigh==true)
+//            valueLow = valueHigh - ZOOM_MAX_TIME;
+//        }
+//    
+//    if (tdiff < ZOOM_MIN_TIME ) {
+//        tdiff = ZOOM_MIN_TIME;
+//        if (zoom_sliderH->hitHigh==true)
+//            valueLow = valueHigh - ZOOM_MIN_TIME;
+//        }
     
     
     int sample_position = convSec2Samp(valueLow);
     int Nsamples = convSec2Samp(tdiff);
     
     // Readjust Max and min value of Slider
-    zoom_sliderH->setMaxAndMin(convSamp2Sec(myApp->tmpFile->getSize()), 0.0);
-    zoom_sliderH->setValueLow(convSamp2Sec(sample_position));
-    zoom_sliderH->setValueHigh(convSamp2Sec(sample_position) + convSamp2Sec(Nsamples));
+//    zoom_sliderH->setMaxAndMin(convSamp2Sec(myApp->tmpFile->getSize()), 0.0);
+//    zoom_sliderH->setValueLow(convSamp2Sec(sample_position));
+//    zoom_sliderH->setValueHigh(convSamp2Sec(sample_position) + convSamp2Sec(Nsamples));
     
     // UPDATE TIME PLOT Data
     updateTplotBuffer(myApp->tmpFile, sample_position, Nsamples);
@@ -210,114 +202,114 @@ void ssGUI::updateTplotBuffer(TmpFile *tmpFile,int posicao, int tamanho)
 }
 
 
-///////////////////////////////////////////////////////////
-// ssGUI::moveX_tplot
-///////////////////////////////////////////////////////////
-void ssGUI :: moveX_tplot (float diff_x){
-    
-    if (myApp->dbgMode) cout << "in moveX" << endl;
-    
-    float dt = zoom_sliderH->getScaledValueHigh() - zoom_sliderH->getScaledValueLow();
-    
-    float diff_x_sec = abs((dt * diff_x)/PLOTS_W); // Convert pixel movement to seconds
-    
-    if (diff_x<0)                          // Update X position
-        {
-        zoom_sliderH->setValueLow(zoom_sliderH->getScaledValueLow()   + diff_x_sec);
-        zoom_sliderH->setValueHigh(zoom_sliderH->getScaledValueHigh() + diff_x_sec);
-        }
-    else
-        {
-        zoom_sliderH->setValueLow(zoom_sliderH->getScaledValueLow()   - diff_x_sec);
-        zoom_sliderH->setValueHigh(zoom_sliderH->getScaledValueHigh() - diff_x_sec);
-        }
-    
-    updatePlotsData(zoom_sliderH->getScaledValueLow(),zoom_sliderH->getScaledValueHigh());
-}
-
-///////////////////////////////////////////////////////////
-// ssTouch::zoomX
-///////////////////////////////////////////////////////////
-void ssGUI :: zoomX_tplot_old (float dist_x){
-    
-    if (myApp->dbgMode) cout << "in zoomX" << endl;
-    
-    float zoomPercent = 0.035;
-    // Zoom Step is a percentage of actual File Selection
-    zoomStep = abs(zoom_sliderH->getScaledValueHigh() - zoom_sliderH->getScaledValueLow())*zoomPercent;
-    
-    if (myApp->pitchMeterWrapper->midiNotes->freqNoteData.size() != 0) { // Is there data to pinch?
-        
-        if (dist_x - dist_x_old > 0.0) { // Zoom IN - Time
-            if (myApp->dbgMode) cout << "distX = " << dist_x << " | dist_x_old=" << dist_x_old << " | zoomStep=" << zoomStep;
-            zoom_sliderH->setValueLow(zoom_sliderH->getScaledValueLow()   + zoomStep);
-            zoom_sliderH->setValueHigh(zoom_sliderH->getScaledValueHigh()   - zoomStep);
-            }
-        else if (dist_x - dist_x_old < 0.0) { // Zoom Out - Time
-            zoom_sliderH->setValueLow(zoom_sliderH->getScaledValueLow()   - zoomStep);
-            zoom_sliderH->setValueHigh(zoom_sliderH->getScaledValueHigh() + zoomStep);
-            }
-        
-        dist_x_old = dist_x;
-        
-        // Update DATA IN TPLOT and PPLOT
-        updatePlotsData(zoom_sliderH->getScaledValueLow(),zoom_sliderH->getScaledValueHigh());
-    }
-}
-
-///////////////////////////////////////////////////////////
-// ssTouch::zoomX
-///////////////////////////////////////////////////////////
-void ssGUI :: zoomX_tplot (void){
-    
-    if (myApp->dbgMode) cout << "in zoomX" << endl;
-    
-    ofPinchGestureRecognizer * pinchObj = myApp->recogPintch;
-    
-    zoomStep = abs(zoom_sliderH->getScaledValueHigh() - zoom_sliderH->getScaledValueLow())*0.035;
-
-    if (myApp->pitchMeterWrapper->midiNotes->freqNoteData.size() != 0) { // Is there data to pinch?
-        
-        if (pinchObj->scale > 1.0) { // Zoom IN - Time
-            zoom_sliderH->setValueLow(zoom_sliderH->getScaledValueLow()   + zoomStep);
-            zoom_sliderH->setValueHigh(zoom_sliderH->getScaledValueHigh()   - zoomStep);
-        }
-        else if (pinchObj->scale < 1.0) { // Zoom Out - Time
-            zoom_sliderH->setValueLow(zoom_sliderH->getScaledValueLow()   - zoomStep);
-            zoom_sliderH->setValueHigh(zoom_sliderH->getScaledValueHigh() + zoomStep);
-        }
-
-        // Update DATA IN TPLOT and PPLOT
-        updatePlotsData(zoom_sliderH->getScaledValueLow(),zoom_sliderH->getScaledValueHigh());
-    }
-}
+/////////////////////////////////////////////////////////////
+//// ssGUI::moveX_tplot
+/////////////////////////////////////////////////////////////
+//void ssGUI :: moveX_tplot (float diff_x){
+//    
+//    if (myApp->dbgMode) cout << "in moveX" << endl;
+//    
+//    float dt = zoom_sliderH->getScaledValueHigh() - zoom_sliderH->getScaledValueLow();
+//    
+//    float diff_x_sec = abs((dt * diff_x)/PLOTS_W); // Convert pixel movement to seconds
+//    
+//    if (diff_x<0)                          // Update X position
+//        {
+//        zoom_sliderH->setValueLow(zoom_sliderH->getScaledValueLow()   + diff_x_sec);
+//        zoom_sliderH->setValueHigh(zoom_sliderH->getScaledValueHigh() + diff_x_sec);
+//        }
+//    else
+//        {
+//        zoom_sliderH->setValueLow(zoom_sliderH->getScaledValueLow()   - diff_x_sec);
+//        zoom_sliderH->setValueHigh(zoom_sliderH->getScaledValueHigh() - diff_x_sec);
+//        }
+//    
+//    updatePlotsData(zoom_sliderH->getScaledValueLow(),zoom_sliderH->getScaledValueHigh());
+//}
+//
+/////////////////////////////////////////////////////////////
+//// ssTouch::zoomX
+/////////////////////////////////////////////////////////////
+//void ssGUI :: zoomX_tplot_old (float dist_x){
+//    
+//    if (myApp->dbgMode) cout << "in zoomX" << endl;
+//    
+//    float zoomPercent = 0.035;
+//    // Zoom Step is a percentage of actual File Selection
+//    zoomStep = abs(zoom_sliderH->getScaledValueHigh() - zoom_sliderH->getScaledValueLow())*zoomPercent;
+//    
+//    if (myApp->pitchMeterWrapper->midiNotes->freqNoteData.size() != 0) { // Is there data to pinch?
+//        
+//        if (dist_x - dist_x_old > 0.0) { // Zoom IN - Time
+//            if (myApp->dbgMode) cout << "distX = " << dist_x << " | dist_x_old=" << dist_x_old << " | zoomStep=" << zoomStep;
+//            zoom_sliderH->setValueLow(zoom_sliderH->getScaledValueLow()   + zoomStep);
+//            zoom_sliderH->setValueHigh(zoom_sliderH->getScaledValueHigh()   - zoomStep);
+//            }
+//        else if (dist_x - dist_x_old < 0.0) { // Zoom Out - Time
+//            zoom_sliderH->setValueLow(zoom_sliderH->getScaledValueLow()   - zoomStep);
+//            zoom_sliderH->setValueHigh(zoom_sliderH->getScaledValueHigh() + zoomStep);
+//            }
+//        
+//        dist_x_old = dist_x;
+//        
+//        // Update DATA IN TPLOT and PPLOT
+//        updatePlotsData(zoom_sliderH->getScaledValueLow(),zoom_sliderH->getScaledValueHigh());
+//    }
+//}
+//
+/////////////////////////////////////////////////////////////
+//// ssTouch::zoomX
+/////////////////////////////////////////////////////////////
+//void ssGUI :: zoomX_tplot (void){
+//    
+//    if (myApp->dbgMode) cout << "in zoomX" << endl;
+//    
+//    ofPinchGestureRecognizer * pinchObj = myApp->recogPintch;
+//    
+//    zoomStep = abs(zoom_sliderH->getScaledValueHigh() - zoom_sliderH->getScaledValueLow())*0.035;
+//
+//    if (myApp->pitchMeterWrapper->midiNotes->freqNoteData.size() != 0) { // Is there data to pinch?
+//        
+//        if (pinchObj->scale > 1.0) { // Zoom IN - Time
+//            zoom_sliderH->setValueLow(zoom_sliderH->getScaledValueLow()   + zoomStep);
+//            zoom_sliderH->setValueHigh(zoom_sliderH->getScaledValueHigh()   - zoomStep);
+//        }
+//        else if (pinchObj->scale < 1.0) { // Zoom Out - Time
+//            zoom_sliderH->setValueLow(zoom_sliderH->getScaledValueLow()   - zoomStep);
+//            zoom_sliderH->setValueHigh(zoom_sliderH->getScaledValueHigh() + zoomStep);
+//        }
+//
+//        // Update DATA IN TPLOT and PPLOT
+//        updatePlotsData(zoom_sliderH->getScaledValueLow(),zoom_sliderH->getScaledValueHigh());
+//    }
+//}
 
 ///////////////////////////////////////////////////////////
 // GUI Event CallBack and APP STATE UPDATE
 ///////////////////////////////////////////////////////////
-void ssGUI::guiEvent(ofxUIEventArgs &e) {
-    string name = e.widget->getName();
-    int kind = e.widget->getKind();
-    int state = e.widget->getID();
-    
-    if (myApp->dbgMode) cout << "got event from: " << name << endl;
-    
-    ///////////////////////////////////////////////////////////
-    // Change Zoom Slot
-    ///////////////////////////////////////////////////////////
-    if (name=="zoom_sliderH"){
-        updatePlotsData(zoom_sliderH->getScaledValueLow(),zoom_sliderH->getScaledValueHigh());
-        }
-    
-    ///////////////////////////////////////////////////////////
-    // Change Zoom Slot
-    ///////////////////////////////////////////////////////////
-//    if (name=="zoom_sliderV"){
-//        tplotGain = zoom_sliderV->getScaledValue();
-//        updatePlotsData(zoom_sliderH->getScaledValueLow(), zoom_sliderH->getScaledValueHigh());
-//    }
-
-}
+//void ssGUI::guiEvent(ofxUIEventArgs &e) {
+//    string name = e.widget->getName();
+//    int kind = e.widget->getKind();
+//    int state = e.widget->getID();
+//    
+//    if (myApp->dbgMode) cout << "got event from: " << name << endl;
+//    
+//    ///////////////////////////////////////////////////////////
+//    // Change Zoom Slot
+//    ///////////////////////////////////////////////////////////
+//    if (name=="zoom_sliderH"){
+//        updatePlotsData(zoom_sliderH->getScaledValueLow(),zoom_sliderH->getScaledValueHigh());
+//        }
+//    
+//    ///////////////////////////////////////////////////////////
+//    // Change Zoom Slot
+//    ///////////////////////////////////////////////////////////
+////    if (name=="zoom_sliderV"){
+////        tplotGain = zoom_sliderV->getScaledValue();
+////        updatePlotsData(zoom_sliderH->getScaledValueLow(), zoom_sliderH->getScaledValueHigh());
+////    }
+//
+//}
 
 
 ///////////////////////////////////////////////////////////

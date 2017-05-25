@@ -41,6 +41,7 @@ public:
     int                       TplotBuffer_size;
     float                   * TplotBuffer;
     ssPianoKeyboard         * piano;
+    
     //ssDragGestureRecognizer * touchDragObj;
 
     ///////////////////////////////////////////////////////////
@@ -50,23 +51,11 @@ public:
 
     // Canvas Objects
     ofxUICanvas             * tplotGUI;
-//    ofxUICanvas             * cpanelGUICanvas;
-//    ofxUICanvas             * cpanelGUICanvas2;
-//    ofxUICanvas             * cpanelGUICanvas3;
-//    ofxUICanvas             * cpanelGUICanvas4; agora4
-//    ofxUICanvas             * cpanelGUICanvas4b;  agora4b
-//    ofxUICanvas             * cpanelGUICanvas5; agora5
 
     // Pointers to Objects accessed from other classes
-    ofxUIRangeSlider        * zoom_sliderH;
+//    ofxUIRangeSlider        * zoom_sliderH;
     //ofxUISlider             * zoom_sliderV;
     ofxUIWaveform           * tplot;
-//	ofxUIWaveform           * fplot;
-//    ofxUIMultiImageToggle   * btn_play;
-//    ofxUIMultiImageToggle   * btn_record;
-//    ofxUIImageSlider        * slider_volume;
-//    ofxUIImageSlider        * slider_mixer;
-//    ofxUIDropDownList       * ddl;
     ofxUILabel              * instName;
     ofxUILabel              * timeStr;
     
@@ -97,16 +86,16 @@ public:
     ///////////////////////////////////////////////////////////
     // Move Tplot in x axis
     ///////////////////////////////////////////////////////////
-    void moveX_tplot (float diff_x);
+//    void moveX_tplot (float diff_x);
     ///////////////////////////////////////////////////////////
     // zoom Tplot in x axis
     ///////////////////////////////////////////////////////////
-    void zoomX_tplot_old (float dist_x);
-    void zoomX_tplot (void);
+//    void zoomX_tplot_old (float dist_x);
+//    void zoomX_tplot (void);
     ///////////////////////////////////////////////////////////
     // GUI Event CallBack
     ///////////////////////////////////////////////////////////
-    void guiEvent(ofxUIEventArgs &e);
+//    void guiEvent(ofxUIEventArgs &e);
     ///////////////////////////////////////////////////////////
     // ADD Time Plot GUI
     ///////////////////////////////////////////////////////////
@@ -123,6 +112,10 @@ public:
     // Draw Routine
     ///////////////////////////////////////////////////////////
     void draw();	// called every frame to draw object
+    
+    
+    void initTplot(float xi,float yi, float _W, float _H);
+    void drawTplot();
     
 
 };

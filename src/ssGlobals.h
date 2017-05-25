@@ -27,12 +27,16 @@
 // GUI Position/width/height in percentage
 //////////////////////////////////////////////////////////////////////////////////
 #define PLOTS_DIM   40*APP_HEIGHT/1024  // in pixels
-#define PLOTS_X     (0.10*APP_WIDTH + OFX_UI_GLOBAL_WIDGET_SPACING)
-#define PLOTS_Y     50 + OFX_UI_GLOBAL_WIDGET_SPACING
-#define PLOTS_W     (1.00*APP_WIDTH - PLOTS_X - 0.06*APP_WIDTH)
+//#define PLOTS_X     (0.10*APP_WIDTH + OFX_UI_GLOBAL_WIDGET_SPACING)
+#define PLOTS_X     (0.05*APP_WIDTH)
+//#define PLOTS_Y     50 + OFX_UI_GLOBAL_WIDGET_SPACING
+#define PLOTS_Y     (0.025*APP_HEIGHT)
+//#define PLOTS_W     (1.00*APP_WIDTH - PLOTS_X - 0.06*APP_WIDTH)
+#define PLOTS_W     (APP_WIDTH - PLOTS_X*2)
 //#define PLOTS_H     (0.3*APP_HEIGHT)
 #define PLOTS_H     (0.25*APP_HEIGHT)
-#define PLOT_T_H    (0.19*APP_HEIGHT)
+//#define PLOT_T_H    (0.19*APP_HEIGHT)
+#define PLOT_T_H    (0.2*APP_HEIGHT)
 #define PLOT_F_H    (0.10*APP_HEIGHT)
 #define OFFSET_X     OFX_UI_GLOBAL_WIDGET_SPACING                // in pixels
 
@@ -44,8 +48,8 @@
 
 // ANDRE
 #define KEY_LENGTH  0.12*APP_HEIGHT
-#define MAINPLOT_X  PLOTS_H + KEY_LENGTH
-#define MAINPLOT_H  (APP_HEIGHT - (MAINPLOT_X) - CPANEL_H)
+#define MAINPLOT_X  (PLOTS_H + KEY_LENGTH)
+#define MAINPLOT_H  (APP_HEIGHT - MAINPLOT_X - CPANEL_H)
 
 // THEORETICAL SOUND POWER VALUES
 //#define MIN_POWER   40  // 40 dB corresponds to a quiet environment
@@ -58,7 +62,8 @@
 //#define MAX_POWER   130
 
 #define MIN_FADE_TIME   60
-#define MAX_FADE_TIME   MIN_FADE_TIME + 700
+//#define MAX_FADE_TIME   MIN_FADE_TIME + 700
+#define MAX_FADE_TIME   MIN_FADE_TIME + 350
 
 
 //////////////////////////////////////////////////////////////////////////////////
@@ -94,8 +99,8 @@
 //#define DOT_RADIUS 3;
 #define DOT_RADIUS 0.006 * APP_WIDTH;
 
-//#define SQUARE_GRANULARITY  ((APP_WIDTH/NKeys))
-#define SQUARE_GRANULARITY  ((APP_WIDTH/NKeys)/2)
+#define SQUARE_GRANULARITY  (APP_WIDTH/NKeys)
+//#define SQUARE_GRANULARITY  (APP_WIDTH*2/NKeys)
 
 #define N_ROWS      (MAINPLOT_H/SQUARE_GRANULARITY)
 #define N_COLS      (APP_WIDTH/SQUARE_GRANULARITY)
