@@ -298,7 +298,8 @@ void ssPianoKeyboard::initGLPianoRollData(){
 //    float lengthPitchMagnitudePlot = MAINPLOT_H;
     float lengthPitchMagnitudePlot = APP_HEIGHT - MAINPLOT_X - myApp->heightNavController;
     
-    float Wkey = Wkeyboard*1/(NKeys+1);
+//    float Wkey = Wkeyboard*1/(NKeys+1);
+    float Wkey = Wkeyboard*1/(NKeys);
     
     for ( int i = 0; i <= LAST_KEY - FIRST_KEY; i++) {
     
@@ -310,12 +311,14 @@ void ssPianoKeyboard::initGLPianoRollData(){
         
         // Create Color Array
         if (midiScale[i].keyColor == WHITE_COLOR){
-            c.r = 0.16; c.g = 0.20; c.b = 0.23;
-            cout << "white" << endl;
+//            c.r = 0.16; c.g = 0.20; c.b = 0.23;
+            c.r = 0.05; c.g = 0.05; c.b = 0.05;
+//            cout << "white" << endl;
         }
         else{
-            c.r = 0.13; c.g = 0.16; c.b = 0.18;
-            cout << "black" << endl;
+//            c.r = 0.13; c.g = 0.16; c.b = 0.18;
+            c.r = 0.08; c.g = 0.08; c.b = 0.08;
+//            cout << "black" << endl;
         }
         
         c.a = 0.65;
@@ -407,29 +410,37 @@ void ssPianoKeyboard::rephreshGLFileBufferData(){
 ///////////////////////////////////////////////////////////
 void ssPianoKeyboard::drawKeyboardAndPianoRoll_Optimized(float yiPitchMagnitudePlot, float lengthPitchMagnitudePlot) {
     
-    float Wkey = Wkeyboard*1/(NKeys+1);
+    cout << "in drawKeyboardAndPianoRoll_Optimized = " << endl;
     
-//    float Wkey = Wkeyboard/NKeys;
+//    float Wkey = Wkeyboard*1/(NKeys+1);
+    
+    float Wkey = Wkeyboard/NKeys;
     
     //////////////////////////////////////////////////
     // Draw Piano Roll
     //////////////////////////////////////////////////
-//    VBO_pianoRoll.drawElements(GL_TRIANGLE_STRIP, VBO_pr_size);
+    VBO_pianoRoll.drawElements(GL_TRIANGLE_STRIP, VBO_pr_size);
     
     for (int i=0;i<midiScale.size(); i++) {
         ////////////////////////////////////
         // Draw PianoRoll Split Notes Bar
         ////////////////////////////////////
-        Wkey = Wkeyboard*1/(NKeys+1);
+//        Wkey = Wkeyboard*1/(NKeys+1);
+        cout << "Wkey = " << Wkey << endl;
 //        ofSetColor(0,0,0,30);
-        ofSetColor(255,255,255,100);
-        ofSetLineWidth(2.0);
+        ofSetColor(30,30,30);
+//        ofSetColor(141, 145, 139, 75);
+//        ofSetColor(255,255,255,100);
+//        ofSetLineWidth(2.0);
 //        ofLine( xiPitchMagnitudePlot ,yi + Wkeyboard - (i+1)*Wkey, xiPitchMagnitudePlot + widthPitchMagnitudePlot, yi + Wkeyboard - (i+1)*Wkey);
-        ofLine( xi + Wkey*(i+1) ,yiPitchMagnitudePlot, xi + Wkey*(i+1), yiPitchMagnitudePlot + lengthPitchMagnitudePlot);
+        ofLine( roundSIL(xi + Wkey*(i+1), 0) ,yiPitchMagnitudePlot, roundSIL(xi + Wkey*(i+1), 0), yiPitchMagnitudePlot + lengthPitchMagnitudePlot);
         
-        ofSetColor(255,0,0,100);
-        Wkey = Wkeyboard/NKeys;
-        ofLine( xi + Wkey*(i+1) ,yiPitchMagnitudePlot, xi + Wkey*(i+1), yiPitchMagnitudePlot + lengthPitchMagnitudePlot);
+        cout << "line X coordinate = " << xi + Wkey*(i+1) << endl;
+        
+//        ofSetColor(255,0,0,100);
+//        Wkey = Wkeyboard/NKeys;
+//        cout << "Wkey = " << Wkey << endl;
+//        ofLine( xi + Wkey*(i+1) ,yiPitchMagnitudePlot, xi + Wkey*(i+1), yiPitchMagnitudePlot + lengthPitchMagnitudePlot);
         
         ofSetLineWidth(1.0);
         
@@ -442,8 +453,8 @@ void ssPianoKeyboard::drawKeyboardAndPianoRoll_Optimized(float yiPitchMagnitudeP
         ofSetColor(255, 255, 255, 120);
         
 //        myfont.drawString(ofToString(roundSIL(keyboard[midiScale.size()-i-1].midiInfo.freq,0)) + " Hz", yiPitchMagnitudePlot + lengthPitchMagnitudePlot + 5, roundSIL(yi + (i)*Wkey - Wkey/2 + 3,0));
-        myfont.drawString(ofToString(roundSIL(keyboard[i].midiInfo.freq,0)), roundSIL(xi + (i)*Wkey + Wkey/3,0), yiPitchMagnitudePlot + lengthPitchMagnitudePlot - 19);
-        myfont.drawString("Hz", roundSIL(xi + (i)*Wkey + Wkey/3 + 2,0), yiPitchMagnitudePlot + lengthPitchMagnitudePlot - 5);
+        myfont.drawString(ofToString(roundSIL(keyboard[i].midiInfo.freq,0)), roundSIL(xi + (i)*Wkey + Wkey/5,0), yiPitchMagnitudePlot + lengthPitchMagnitudePlot - 10);
+//        myfont.drawString("Hz", roundSIL(xi + (i)*Wkey + Wkey/3 + 2,0), yiPitchMagnitudePlot + lengthPitchMagnitudePlot - 5);
 //        cout << ofToString(roundSIL(keyboard[midiScale.size()-i-1].midiInfo.freq,0)) << " Hz" << endl;
     }
     
@@ -587,6 +598,13 @@ void ssPianoKeyboard::drawRegionsPlot() {
     
     cout << "in drawRegionsPlot()" << endl;
     
+    cout << "SQUARE GRANULARITY = " << SQUARE_GRANULARITY << endl;
+    
+    
+    float square_side = ((float)APP_WIDTH/(float)NKeys);
+    
+    cout << "SQUARE SIDE = " << square_side << endl;
+    
     int maxDots = 0;
     
     for (int i = 0 ; i < N_ROWS*N_COLS ; i++) {
@@ -596,6 +614,7 @@ void ssPianoKeyboard::drawRegionsPlot() {
     }
     
     ofFill();
+    drawPowerLines();
     
     for (int i = 0 ; i < N_ROWS*N_COLS ; i++) {
         
@@ -613,14 +632,14 @@ void ssPianoKeyboard::drawRegionsPlot() {
 //            ofSetColor(255, 255, 255, ofMap(dotsMatrix[i], 0, myApp->pitchMeterWrapper->midiNotes->midiNoteData.size(), 0, 255));
             ofSetColor(255, 255, 255, ofMap(dotsMatrix[i], 0, maxDots, 0, 255));
 //            ofSetColor(237, 0, 0, ofMap(dotsMatrix[i], 0, maxDots, 0, 255));
-            ofRect((i%N_COLS)*SQUARE_GRANULARITY, MAINPLOT_X + (int)((i/N_COLS)*SQUARE_GRANULARITY), SQUARE_GRANULARITY, SQUARE_GRANULARITY);
+//            ofRect((i%N_COLS)*SQUARE_GRANULARITY, MAINPLOT_X + (int)((i/N_COLS)*SQUARE_GRANULARITY), SQUARE_GRANULARITY, SQUARE_GRANULARITY);
+            ofRect((float)(i%N_COLS)*square_side, MAINPLOT_X + ((float)(i/N_COLS)*square_side), square_side, square_side);
             
-            cout << "x = " << (i%N_COLS)*SQUARE_GRANULARITY << "     |       y = " << (int)(MAINPLOT_X + (i/N_COLS)*SQUARE_GRANULARITY) << "    |   column index: " << i%N_COLS << "    |   row index: " << i/N_COLS << endl;
+            cout << "x = " << (i%N_COLS)*square_side << "     |       y = " << (MAINPLOT_X + (i/N_COLS)*square_side) << "    |   column index: " << i%N_COLS << "    |   row index: " << i/N_COLS << endl;
         }
     }
     
     ofNoFill();
-    drawPowerLines();
     
 }
 
@@ -658,11 +677,12 @@ void ssPianoKeyboard::drawPowerLines() {
     for(int i = MIN_POWER + 5; i <= MAX_POWER - 5 ; i += 5) {
         
         float y = power2pixelY(i);
-        ofSetColor(141, 145, 139, 75);
+//        ofSetColor(141, 145, 139, 75);
+        ofSetColor(60, 60, 60);
         ofLine(0, y, Wkeyboard, y);
         ofSetColor(255, 255, 255, 120);
         myfont.drawString(ofToString(i) + " dB", OFX_UI_GLOBAL_WIDGET_SPACING, y - 5);
-        myfont.drawString(ofToString(i) + " dB", Wkeyboard - Wkeyboard/NKeys + 10 , y - 5);
+        myfont.drawString(ofToString(i) + " dB", Wkeyboard - Wkeyboard/NKeys - 10 , y - 5);
     }
 }
 

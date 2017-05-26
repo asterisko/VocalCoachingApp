@@ -93,13 +93,16 @@
 #define A4         440      // G is 440 hz...
 #define FIRST_KEY   36  // Midi:  36 | B6 | 3951.07 Hz
 #define LAST_KEY    71 // Midi: 108 | C1 | 65.41   Hz
-#define NKeys       (LAST_KEY-FIRST_KEY)
+//#define NKeys       (LAST_KEY-FIRST_KEY)
+#define NKeys       (LAST_KEY-FIRST_KEY+1)
 
 // ANDRE
 //#define DOT_RADIUS 3;
 #define DOT_RADIUS 0.006 * APP_WIDTH;
 
+//#define SQUARE_GRANULARITY  (APP_WIDTH/(NKeys + 1))
 #define SQUARE_GRANULARITY  (APP_WIDTH/NKeys)
+//#define SQUARE_GRANULARITY  (APP_WIDTH/(NKeys - 1))
 //#define SQUARE_GRANULARITY  (APP_WIDTH*2/NKeys)
 
 #define N_ROWS      (MAINPLOT_H/SQUARE_GRANULARITY)
